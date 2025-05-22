@@ -1,151 +1,101 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import { MdEdit } from "react-icons/md";
+import { FaRegTrashAlt } from "react-icons/fa";
 
-import React from "react";
-import { useState } from "react";
-import Spreadsheet from "react-spreadsheet";
-
-const itemOptions = [
-  { name: "Coke", price: 1500 },
-  { name: "Pepsi", price: 1300 },
-  { name: "Water", price: 1000 },
-];
-
-const SalesSpreadsheet = () => {
-  const [data, setData] = useState([
-    [
-      { value: "Time" },
-      { value: "Item" },
-      { value: "Quantity" },
-      { value: "Price" },
-      { value: "Total" },
-    ],
+function Products() {
+  const [dummy, setDummy] = useState([
+    { name: "coke", stock: "stock 1", salePrice: 2000 },
+    { name: "pepsi", stock: "stock 1", salePrice: 2000 },
+    { name: "water", stock: "stock 1", salePrice: 2000 },
+    { name: "mile", stock: "stock 1", salePrice: 2000 },
   ]);
-  const [selectedItem, setSelectedItem] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [cart, setCart] = useState([]);
+  const [filteredDummy, setFilteredDummy] = useState([]);
+  const [searchEntry, setSearchEntry] = useState("");
 
-  function addToCart() {
-    if (!selectedItem || !quantity) return;
+  useEffect(() => {
+    const filteredSearch = dummy.filter((item) =>
+      item.name.toLowerCase().includes(searchEntry.toLowerCase())
+    );
+    setFilteredDummy(filteredSearch);
+  }, [searchEntry, dummy]);
 
-    const existingItem = cart.findIndex((index) => index.name === selectedItem);
-    console.log(existingItem);
-    const itemData = itemOptions.find((item) => item.name === selectedItem);
-    console.log(itemData);
-    if (existingItem >= 0) {
-      const updated = [...cart];
-      updated[existingItem].quantity += parseInt(quantity);
-      setCart(updated);
-    } else {
-      setCart([
-        ...cart,
-        {
-          name: selectedItem,
-          quantity: parseInt(quantity),
-          price: itemData?.price,
-          total: itemData.price * quantity,
-        },
-      ]);
-    }
-    console.log(cart);
-    setSelectedItem("");
-    setQuantity("");
-  }
-  function handleCartToSheet() {
-    const newSheetData = cart.map((item) => {
-      return [
-        { value: 2 },
-        { value: item.name },
-        { value: item.quantity.toString() },
-        { value: item.price.toString() },
-        { value: item.total },
-      ];
-    });
-    setData([...data, ...newSheetData]);
-    setCart([]);
-  }
-  console.log(data);
+  const render = searchEntry ? filteredDummy : dummy;
+
+  const removeItem = (id) => {
+    const updateList = dummy.filter((_, index) => index !== id);
+    setDummy(updateList);
+  };
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">Sales Spreadsheet</h2>
+    <div className="mx-auto p-6">
+      <input
+        type="text"
+        placeholder="Search Here"
+        value={searchEntry}
+        onChange={(e) => setSearchEntry(e.target.value)}
+        className="w-full md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+      />
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Spreadsheet Section */}
-        <div className="flex-1 overflow-auto">
-          <Spreadsheet data={data} onChange={() => {}} />
-        </div>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-xl font-semibold text-gray-800">Products List</p>
+        <button className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors">
+          Add New
+        </button>
+      </div>
 
-        {/* Cart & Form Section */}
-        <div className="w-full md:w-80 border-l border-gray-300 pl-4">
-          <h3 className="font-semibold text-lg mb-2">Current Purchase</h3>
+      <hr className="mb-4 border-gray-200" />
 
-          {/* Form */}
-          <div className="flex flex-col gap-2 mb-4">
-            <select
-              value={selectedItem}
-              className="border p-2 rounded"
-              onChange={(e) => setSelectedItem(e.target.value)}
-            >
-              <option value="">Select Item</option>
-              {itemOptions.map((items) => (
-                <option key={items.name} value={items.name}>
-                  {items.name}
-                </option>
+      <div className="relative min-h-[330px] max-h-[350px] overflow-auto rounded-xl shadow-sm border border-gray-200">
+        <table className="w-full table-auto text-sm">
+          <thead className="sticky top-0 bg-gray-100 text-gray-700 z-10">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium">S/N</th>
+              <th className="px-4 py-3 text-left font-medium">Name</th>
+              <th className="px-4 py-3 text-left font-medium">Stock</th>
+              <th className="px-4 py-3 text-left font-medium">Sale Price</th>
+              <th className="px-4 py-3 text-center font-medium"></th>
+              <th className="px-4 py-3 text-center font-medium"></th>
+            </tr>
+          </thead>
+
+          {render.length > 0 ? (
+            <tbody>
+              {render.map((item, index) => (
+                <tr
+                  key={index}
+                  className="odd:bg-white even:bg-gray-50 hover:bg-red-50 transition-colors"
+                >
+                  <td className="px-4 py-3">{index + 1}</td>
+                  <td className="px-4 py-3 capitalize">{item.name}</td>
+                  <td className="px-4 py-3 capitalize">{item.stock}</td>
+                  <td className="px-4 py-3">
+                    ₦{item.salePrice.toLocaleString()}
+                  </td>
+                  <td className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer">
+                    <MdEdit size={18} />
+                  </td>
+                  <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
+                    <FaRegTrashAlt
+                      size={16}
+                      onClick={() => removeItem(index)}
+                    />
+                  </td>
+                </tr>
               ))}
-            </select>
-
-            <input
-              type="number"
-              min={1}
-              className="border p-2 rounded"
-              placeholder="Quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-
-            <button
-              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-              onClick={addToCart}
-            >
-              + Add to Cart
-            </button>
-          </div>
-
-          {/* Cart Display */}
-          <div className="space-y-2 mb-4">
-            {cart.length === 0 && (
-              <p className="text-sm text-gray-500">Cart is empty</p>
-            )}
-
-            {cart.map((items) => (
-              <div>
-                <div className="bg-gray-100 px-3 py-2 rounded flex justify-between">
-                  <span>
-                    {items.name}X{items.quantity}
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    {items.quantity * items.price}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p>
-            Total: ₦
-            {cart.reduce((acc, item) => acc + item.price * item.quantity, 0)}
-          </p>
-
-          {/* Final Button */}
-          <button
-            onClick={handleCartToSheet}
-            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50"
-            disabled={cart.length === 0}
-          >
-            ✅ Add to Sales Record
-          </button>
-        </div>
+            </tbody>
+          ) : (
+            <tbody>
+              <tr>
+                <td colSpan="6" className="text-center py-6 text-gray-500">
+                  No item found
+                </td>
+              </tr>
+            </tbody>
+          )}
+        </table>
       </div>
     </div>
   );
-};
+}
 
-export default SalesSpreadsheet;
+export default Products;
