@@ -22,10 +22,11 @@ function Products() {
 
   const render = searchEntry ? filteredDummy : dummy;
 
-  const removeItem = (id) => {
+  const removeItem = (id: number) => {
     const updateList = dummy.filter((_, index) => index !== id);
     setDummy(updateList);
   };
+  const editItem = (id: number) => {};
   return (
     <div className="mx-auto p-6">
       <input
@@ -72,7 +73,7 @@ function Products() {
                     ₦{item.salePrice.toLocaleString()}
                   </td>
                   <td className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer">
-                    <MdEdit size={18} />
+                    <MdEdit size={18} onClick={() => editItem(index)} />
                   </td>
                   <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
                     <FaRegTrashAlt
