@@ -2,15 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { MdEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { CustomAlertDialog } from "@/components/CustomAlertDialog";
+
+// Define the shape of a product
+interface Product {
+  name: string;
+  quantity: number;
+  salePrice: number;
+}
 
 function Products() {
-  const [dummy, setDummy] = useState([
-    { name: "coke", stock: "stock 1", salePrice: 2000 },
-    { name: "pepsi", stock: "stock 1", salePrice: 2000 },
-    { name: "water", stock: "stock 1", salePrice: 2000 },
-    { name: "mile", stock: "stock 1", salePrice: 2000 },
-  ]);
-  const [filteredDummy, setFilteredDummy] = useState([]);
+  const [dummy, setDummy] = useState<Product[]>([]);
+  const [filteredDummy, setFilteredDummy] = useState<Product[]>([]);
   const [searchEntry, setSearchEntry] = useState("");
 
   useEffect(() => {
@@ -26,7 +29,25 @@ function Products() {
     const updateList = dummy.filter((_, index) => index !== id);
     setDummy(updateList);
   };
-  const editItem = (id: number) => {};
+
+  const editItem = (id: number) => {
+    const itemToEdit = dummy[id];
+    console.log("Editing:", itemToEdit);
+  };
+
+  const handlesubmit = (data: Product) => {
+    const nameExists = dummy.some(
+      (item) => item.name.toLowerCase() === data.name.toLowerCase()
+    );
+
+    if (nameExists) {
+      alert(`${data.name} already exists. Please edit the item instead.`);
+      return;
+    }
+
+    setDummy([...dummy, data]);
+  };
+
   return (
     <div className="mx-auto p-6">
       <input
@@ -39,9 +60,19 @@ function Products() {
 
       <div className="flex justify-between items-center mb-4">
         <p className="text-xl font-semibold text-gray-800">Products List</p>
-        <button className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors">
-          Add New
-        </button>
+
+        <CustomAlertDialog
+          trigger={
+            <button className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors">
+              Add New
+            </button>
+          }
+          title="Add new entry"
+          description="Fill all items."
+          cancelText="Cancel"
+          confirmText="Submit"
+          onConfirm={handlesubmit}
+        />
       </div>
 
       <hr className="mb-4 border-gray-200" />
@@ -68,12 +99,21 @@ function Products() {
                 >
                   <td className="px-4 py-3">{index + 1}</td>
                   <td className="px-4 py-3 capitalize">{item.name}</td>
-                  <td className="px-4 py-3 capitalize">{item.stock}</td>
+                  <td className="px-4 py-3 capitalize">
+                    {item.quantity.toLocaleString()}
+                  </td>
                   <td className="px-4 py-3">
                     ₦{item.salePrice.toLocaleString()}
                   </td>
                   <td className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer">
-                    <MdEdit size={18} onClick={() => editItem(index)} />
+                    <CustomAlertDialog
+                      trigger={<MdEdit size={18} />}
+                      title="Edit entry"
+                      description="Fill all items."
+                      cancelText="Cancel"
+                      confirmText="Submit"
+                      onConfirm={() => editItem(index)}
+                    />
                   </td>
                   <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
                     <FaRegTrashAlt
@@ -87,7 +127,7 @@ function Products() {
           ) : (
             <tbody>
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td colSpan={6} className="text-center py-6 text-gray-500">
                   No item found
                 </td>
               </tr>

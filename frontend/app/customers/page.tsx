@@ -14,7 +14,7 @@ export default function Page() {
         trigger={<Button variant="destructive">Delete Item</Button>}
         title="Are you absolutely sure?"
         description="This action cannot be undone. It will permanently delete this item."
-        cancelText="Cancel"
+        cancelText="Cancl"
         confirmText="Delete"
         onConfirm={handleDelete}
       />
