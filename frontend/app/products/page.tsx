@@ -4,7 +4,6 @@ import { MdEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { CustomAlertDialog } from "@/components/CustomAlertDialog";
 
-// Define the shape of a product
 interface Product {
   name: string;
   quantity: number;
@@ -30,9 +29,19 @@ function Products() {
     setDummy(updateList);
   };
 
-  const editItem = (id: number) => {
-    const itemToEdit = dummy[id];
-    console.log("Editing:", itemToEdit);
+  const handleEdit = (data: Product, id: number) => {
+    const nameExists = dummy.some(
+      (item, index) =>
+        index !== id && item.name.toLowerCase() === data.name.toLowerCase()
+    );
+
+    if (nameExists) {
+      alert(`${data.name} already exists. Please choose a different name.`);
+      return;
+    }
+
+    const updated = dummy.map((item, index) => (index === id ? data : item));
+    setDummy(updated);
   };
 
   const handlesubmit = (data: Product) => {
@@ -55,7 +64,7 @@ function Products() {
         placeholder="Search Here"
         value={searchEntry}
         onChange={(e) => setSearchEntry(e.target.value)}
-        className="w-full md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="w-full bg-white md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
       />
 
       <div className="flex justify-between items-center mb-4">
@@ -112,7 +121,8 @@ function Products() {
                       description="Fill all items."
                       cancelText="Cancel"
                       confirmText="Submit"
-                      onConfirm={() => editItem(index)}
+                      onConfirm={(data) => handleEdit(data, index)}
+                      initialData={item}
                     />
                   </td>
                   <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
