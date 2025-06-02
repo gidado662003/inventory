@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
 import { AiOutlineDelete } from "react-icons/ai";
+import { getProducts } from "@/app/api";
 // Define types
 type Item = {
   name: string;
-  price: number;
+  salePrice: number;
+  quantity: number;
 };
 
 type CartItem = {
   name: string;
-  price: number;
+  salePrice: number;
   quantity: number;
 };
 
@@ -20,12 +22,6 @@ type SpreadsheetCell = {
 };
 
 // Product Options
-const itemOptions: Item[] = [
-  { name: "Coke", price: 1500 },
-  { name: "Pepsi", price: 1300 },
-  { name: "Water", price: 1000 },
-  { name: "komando", price: 1300 },
-];
 
 // Get current time
 const getCurrentTime = (): string => {
@@ -38,6 +34,14 @@ const getCurrentTime = (): string => {
 };
 
 const SalesSpreadsheet = () => {
+  const [itemOptions, setItemOptions] = useState<Item[]>([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const products = await getProducts();
+      setItemOptions(products);
+    };
+    fetchProducts();
+  }, []);
   const [data, setData] = useState<Matrix<CellBase<any>>>([
     [
       { value: "Time" },
@@ -66,7 +70,7 @@ const SalesSpreadsheet = () => {
     } else {
       updatedCart.push({
         name: itemData.name,
-        price: itemData.price,
+        salePrice: itemData.salePrice,
         quantity: parseInt(quantity),
       });
     }
@@ -80,12 +84,12 @@ const SalesSpreadsheet = () => {
     if (cart.length === 0) return;
 
     const newRows = cart.map((item) => {
-      const total = (item.quantity * item.price).toFixed(2);
+      const total = (item.quantity * item.salePrice).toFixed(2);
       return [
         { value: getCurrentTime() },
         { value: item.name },
         { value: item.quantity.toString() },
-        { value: `₦${item.price.toFixed(2).toLocaleString()}` },
+        { value: `₦${item.salePrice.toFixed(2).toLocaleString()}` },
         { value: `₦${total}` },
       ];
     });
@@ -95,7 +99,7 @@ const SalesSpreadsheet = () => {
   };
 
   const totalAmount = cart.reduce(
-    (acc, item) => acc + item.quantity * item.price,
+    (acc, item) => acc + item.quantity * item.salePrice,
     0
   );
 
@@ -127,14 +131,22 @@ const SalesSpreadsheet = () => {
             {/* Form Section */}
             <div className="space-y-3">
               <select
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                aria-label="Select product to add to cart"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white text-gray-700"
                 value={selectedItem}
                 onChange={(e) => setSelectedItem(e.target.value)}
               >
-                <option value="">Select Item</option>
+                <option value="" className="text-gray-500">
+                  Select Item
+                </option>
                 {itemOptions.map((item) => (
-                  <option key={item.name} value={item.name}>
-                    {item.name} - ₦{item.price.toLocaleString()}
+                  <option
+                    key={item.name}
+                    value={item.name}
+                    className="py-2 hover:bg-blue-50"
+                  >
+                    {item.name} - ₦{item.salePrice.toLocaleString()} -{" "}
+                    {item.quantity.toLocaleString()} in stock
                   </option>
                 ))}
               </select>
@@ -160,7 +172,7 @@ const SalesSpreadsheet = () => {
           </div>
 
           {/* Cart Items */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="bg-gray-50 border overflow-scroll border-gray-200 rounded-lg p-4 shadow-sm">
             <h4 className="text-sm font-medium text-gray-600 mb-2">
               🛍 Cart Items
             </h4>
@@ -178,7 +190,7 @@ const SalesSpreadsheet = () => {
                     </span>
 
                     <span className="flex gap-[20px] items-center text-gray-600">
-                      ₦{(item.price * item.quantity).toLocaleString()}
+                      ₦{(item.salePrice * item.quantity).toLocaleString()}
                       <span>
                         <AiOutlineDelete
                           className="w-[20px] text-red-600 cursor-pointer"

@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface ProductItem {
+  _id: string;
   name: string;
   quantity: number;
   salePrice: number;
+  stock: number;
 }
 
 interface CustomAlertDialogProps {
@@ -26,6 +28,7 @@ interface CustomAlertDialogProps {
   confirmText?: string;
   onConfirm: (data: ProductItem) => void;
   initialData?: ProductItem;
+  stockToggle: boolean;
 }
 
 export const CustomAlertDialog = ({
@@ -36,18 +39,20 @@ export const CustomAlertDialog = ({
   confirmText = "Continue",
   onConfirm,
   initialData,
+  stockToggle,
 }: CustomAlertDialogProps) => {
   const [newEntry, setNewEntry] = useState<ProductItem>({
+    _id: "",
     name: "",
     quantity: 0,
     salePrice: 0,
+    stock: 0,
   });
-
   useEffect(() => {
     if (initialData) {
       setNewEntry(initialData);
     } else {
-      setNewEntry({ name: "", quantity: 0, salePrice: 0 });
+      setNewEntry({ name: "", quantity: 0, salePrice: 0, stock: 0 });
     }
   }, [initialData]);
 
@@ -60,15 +65,31 @@ export const CustomAlertDialog = ({
   };
 
   const handleConfirm = () => {
-    if (!newEntry.name.trim()) {
+    const entry = stockToggle
+      ? {
+          ...newEntry,
+          quantity: newEntry.quantity + newEntry.stock,
+          stock: 0,
+        }
+      : newEntry;
+
+    if (!entry.name.trim()) {
       alert("Product name is required");
       return;
     }
-    if (newEntry.quantity < 0 || newEntry.salePrice < 0) {
+
+    if (entry.quantity < 0 || entry.salePrice < 0) {
       alert("Values cannot be negative");
       return;
     }
-    onConfirm(newEntry);
+
+    onConfirm(entry);
+    setNewEntry({
+      name: "",
+      quantity: 0,
+      salePrice: 0,
+      stock: 0,
+    });
   };
 
   return (
@@ -83,7 +104,7 @@ export const CustomAlertDialog = ({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        
+
         <div className="space-y-4 py-4">
           <div>
             <label
@@ -103,7 +124,7 @@ export const CustomAlertDialog = ({
               placeholder="Enter product name"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
@@ -126,7 +147,7 @@ export const CustomAlertDialog = ({
                 />
               </div>
             </div>
-            
+
             <div>
               <label
                 htmlFor="quantity"
@@ -140,14 +161,35 @@ export const CustomAlertDialog = ({
                 id="quantity"
                 name="quantity"
                 value={newEntry.quantity || ""}
+                readOnly={stockToggle ? true : false}
                 onChange={handleInputChange}
                 min="0"
                 placeholder="0"
               />
             </div>
           </div>
+          {stockToggle && (
+            <div>
+              <label
+                htmlFor="stock"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                New Stock <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                id="stock"
+                name="stock"
+                value={newEntry.stock || ""}
+                onChange={handleInputChange}
+                min="0"
+                placeholder="0"
+              />
+            </div>
+          )}
         </div>
-        
+
         <AlertDialogFooter className="border-t pt-4">
           <AlertDialogCancel className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
             {cancelText}

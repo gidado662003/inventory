@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import { FaUserCircle } from "react-icons/fa";
+import { Toaster } from "@/components/ui/sonner";
 
 // Fonts
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 h-screen`}
       >
+        <Toaster />
         <div className="flex h-screen">
           {/* Sidebar */}
           <Navbar />
