@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cd frontend && npm run dev"
+    "client": "cd frontend && npm run dev",
+    "server": "cd backend && npm run server",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "keywords": [],
   "author": "",
@@ -15,5 +17,8 @@
     "express": "^5.1.0",
     "morgan": "^1.10.0",
     "react-spreadsheet": "^0.10.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

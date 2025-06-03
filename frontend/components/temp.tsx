@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
 import { AiOutlineDelete } from "react-icons/ai";
 import { getProducts } from "@/app/api";
-// Define types
+
+// Type Definitions
 type Item = {
   name: string;
   salePrice: number;
@@ -15,15 +16,9 @@ type CartItem = {
   name: string;
   salePrice: number;
   quantity: number;
+  paymentType: string;
 };
 
-type SpreadsheetCell = {
-  value: string | number;
-};
-
-// Product Options
-
-// Get current time
 const getCurrentTime = (): string => {
   const now = new Date();
   return now.toLocaleTimeString("en-US", {
@@ -35,13 +30,6 @@ const getCurrentTime = (): string => {
 
 const SalesSpreadsheet = () => {
   const [itemOptions, setItemOptions] = useState<Item[]>([]);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const products = await getProducts();
-      setItemOptions(products);
-    };
-    fetchProducts();
-  }, []);
   const [data, setData] = useState<Matrix<CellBase<any>>>([
     [
       { value: "Time" },
@@ -49,35 +37,77 @@ const SalesSpreadsheet = () => {
       { value: "Quantity" },
       { value: "Price" },
       { value: "Total" },
+      { value: "Payment Type" },
     ],
   ]);
+  useEffect(() => {
+    const header = data[0];
+    const priceColIndex = header.findIndex((item) => item?.value === "Total");
+    const quantityColIndex = header.findIndex(
+      (item) => item?.value === "Quantity"
+    );
+
+    if (priceColIndex !== -1 || quantityColIndex !== -1) {
+      const priceData = data.slice(1).map((data) => {
+        return Number((data[priceColIndex]?.value).replace("₦", ""));
+      });
+
+      const totalPrice = priceData.reduce((acc, item) => acc + item, 0);
+
+      const quantityData = data.slice(1).map((data) => {
+        return Number((data[quantityColIndex]?.value).replace("₦", ""));
+      });
+
+      const quantityPrice = quantityData.reduce((acc, item) => acc + item, 0);
+
+      console.log(quantityPrice);
+      console.log(totalPrice);
+    }
+  }, [data]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [paymentType, setPaymentType] = useState("");
 
-  const handleAddToCart = (): void => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const products = await getProducts();
+      setItemOptions(products);
+    };
+    fetchProducts();
+  }, [data]);
+
+  const handleAddToCart = () => {
+    // Use the latest state right away (this already works)
     if (!selectedItem || !quantity || parseInt(quantity) <= 0) return;
 
     const itemData = itemOptions.find((item) => item.name === selectedItem);
     if (!itemData) return;
 
-    const existingIndex = cart.findIndex((item) => item.name === selectedItem);
-    const updatedCart = [...cart];
+    setCart((prevCart) => {
+      const existingIndex = prevCart.findIndex(
+        (item) => item.name === selectedItem
+      );
+      const updatedCart = [...prevCart];
 
-    if (existingIndex >= 0) {
-      updatedCart[existingIndex].quantity += parseInt(quantity);
-    } else {
-      updatedCart.push({
-        name: itemData.name,
-        salePrice: itemData.salePrice,
-        quantity: parseInt(quantity),
-      });
-    }
+      if (existingIndex >= 0) {
+        updatedCart[existingIndex].quantity += parseInt(quantity);
+      } else {
+        updatedCart.push({
+          name: itemData.name,
+          salePrice: itemData.salePrice,
+          quantity: parseInt(quantity),
+          paymentType,
+        });
+      }
 
-    setCart(updatedCart);
+      return updatedCart;
+    });
+
     setSelectedItem("");
     setQuantity("");
+    setPaymentType("");
   };
 
   const handleAddCartToSales = (): void => {
@@ -89,8 +119,9 @@ const SalesSpreadsheet = () => {
         { value: getCurrentTime() },
         { value: item.name },
         { value: item.quantity.toString() },
-        { value: `₦${item.salePrice.toFixed(2).toLocaleString()}` },
+        { value: `₦${item.salePrice.toFixed(2)}` },
         { value: `₦${total}` },
+        { value: paymentType },
       ];
     });
 
@@ -98,16 +129,15 @@ const SalesSpreadsheet = () => {
     setCart([]);
   };
 
+  const removeItemFromCart = (index: number) => {
+    const updatedCart = cart.filter((_, idx) => idx !== index);
+    setCart(updatedCart);
+  };
+
   const totalAmount = cart.reduce(
     (acc, item) => acc + item.quantity * item.salePrice,
     0
   );
-
-  const removeItemFromCart = (index: number) => {
-    const editCart = cart.filter((_, idx) => idx !== index);
-    setCart(editCart);
-    console.log(cart[index].quantity);
-  };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md max-w-6xl mx-auto">
@@ -123,30 +153,23 @@ const SalesSpreadsheet = () => {
 
         {/* Cart Section */}
         <div className="w-full lg:w-96 space-y-4">
+          {/* Add Items Form */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold text-gray-700 mb-3">
               🛒 Add Items
             </h3>
 
-            {/* Form Section */}
             <div className="space-y-3">
               <select
-                aria-label="Select product to add to cart"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white text-gray-700"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-gray-700"
                 value={selectedItem}
                 onChange={(e) => setSelectedItem(e.target.value)}
               >
-                <option value="" className="text-gray-500">
-                  Select Item
-                </option>
+                <option value="">Select Item</option>
                 {itemOptions.map((item) => (
-                  <option
-                    key={item.name}
-                    value={item.name}
-                    className="py-2 hover:bg-blue-50"
-                  >
+                  <option key={item.name} value={item.name}>
                     {item.name} - ₦{item.salePrice.toLocaleString()} -{" "}
-                    {item.quantity.toLocaleString()} in stock
+                    {item.quantity} in stock
                   </option>
                 ))}
               </select>
@@ -154,7 +177,7 @@ const SalesSpreadsheet = () => {
               <input
                 type="number"
                 min="1"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 placeholder="Quantity"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
@@ -163,16 +186,15 @@ const SalesSpreadsheet = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedItem || !quantity}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <span>➕</span>
-                <span>Add to Cart</span>
+                ➕ Add to Cart
               </button>
             </div>
           </div>
 
-          {/* Cart Items */}
-          <div className="bg-gray-50 border overflow-scroll border-gray-200 rounded-lg p-4 shadow-sm">
+          {/* Cart Items List */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
             <h4 className="text-sm font-medium text-gray-600 mb-2">
               🛍 Cart Items
             </h4>
@@ -183,20 +205,17 @@ const SalesSpreadsheet = () => {
                 {cart.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between items-center bg-white px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50 transition"
+                    className="flex justify-between items-center bg-white px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
                   >
                     <span className="font-medium text-gray-700">
                       {item.name} × {item.quantity}
                     </span>
-
-                    <span className="flex gap-[20px] items-center text-gray-600">
+                    <span className="flex items-center gap-4 text-gray-600">
                       ₦{(item.salePrice * item.quantity).toLocaleString()}
-                      <span>
-                        <AiOutlineDelete
-                          className="w-[20px] text-red-600 cursor-pointer"
-                          onClick={() => removeItemFromCart(idx)}
-                        />
-                      </span>
+                      <AiOutlineDelete
+                        className="text-red-600 cursor-pointer"
+                        onClick={() => removeItemFromCart(idx)}
+                      />
                     </span>
                   </div>
                 ))}
@@ -204,9 +223,9 @@ const SalesSpreadsheet = () => {
             )}
           </div>
 
-          {/* Total & Save */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <div className="flex justify-between items-center mb-4">
+          {/* Payment & Save */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4">
+            <div className="flex justify-between items-center">
               <span className="font-semibold text-gray-700">Total:</span>
               <span className="text-lg font-bold text-blue-600">
                 ₦
@@ -216,13 +235,29 @@ const SalesSpreadsheet = () => {
               </span>
             </div>
 
+            {/* Payment Type */}
+            <div className="flex justify-between text-sm font-medium text-gray-600">
+              {["Cash", "Transfer", "Unpaid"].map((type) => (
+                <label key={type} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={type}
+                    checked={paymentType === type}
+                    onChange={(e) => setPaymentType(e.target.value)}
+                  />
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </label>
+              ))}
+            </div>
+
+            {/* Save Button */}
             <button
               onClick={handleAddCartToSales}
-              disabled={cart.length === 0}
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={cart.length === 0 || paymentType === ""}
+              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <span>✅</span>
-              <span>Save to Sales</span>
+              ✅ Save to Sales
             </button>
           </div>
         </div>
