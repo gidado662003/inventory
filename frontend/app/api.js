@@ -28,3 +28,21 @@ export const updateProduct = async (id, product) => {
   const response = await api.put(`/products/${id}`, product);
   return response.data;
 };
+
+export const createSale = async (sale) => {
+  console.log(sale);
+  const response = await api.post("/sales", sale);
+  return response.data;
+};
+
+export const getSales = async () => {
+  const response = await api.get("/sales");
+  return response.data;
+};
+
+export const getReport = async (startDate, endDate) => {
+  const response = await api.get(
+    `/sales/report?startDate=${startDate}&endDate=${endDate}`
+  );
+  return response.data;
+};

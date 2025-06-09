@@ -17,7 +17,7 @@ interface ProductItem {
   name: string;
   quantity: number;
   salePrice: number;
-  stock: number;
+  stock?: number;
 }
 
 interface CustomAlertDialogProps {
@@ -26,9 +26,9 @@ interface CustomAlertDialogProps {
   description: string;
   cancelText?: string;
   confirmText?: string;
-  onConfirm: (data: ProductItem) => void;
+  onConfirm?: (data: Omit<ProductItem, "stock">) => void;
   initialData?: ProductItem;
-  stockToggle: boolean;
+  stockToggle?: boolean;
 }
 
 export const CustomAlertDialog = ({
@@ -48,11 +48,24 @@ export const CustomAlertDialog = ({
     salePrice: 0,
     stock: 0,
   });
+
   useEffect(() => {
     if (initialData) {
-      setNewEntry(initialData);
+      setNewEntry({
+        _id: initialData._id || "",
+        name: initialData.name || "",
+        quantity: initialData.quantity ?? 0,
+        salePrice: initialData.salePrice ?? 0,
+        stock: initialData.stock ?? 0,
+      });
     } else {
-      setNewEntry({ name: "", quantity: 0, salePrice: 0, stock: 0 });
+      setNewEntry({
+        _id: "",
+        name: "",
+        quantity: 0,
+        salePrice: 0,
+        stock: 0,
+      });
     }
   }, [initialData]);
 
@@ -68,7 +81,7 @@ export const CustomAlertDialog = ({
     const entry = stockToggle
       ? {
           ...newEntry,
-          quantity: newEntry.quantity + newEntry.stock,
+          quantity: newEntry.quantity + (newEntry.stock ?? 0),
           stock: 0,
         }
       : newEntry;
@@ -83,8 +96,13 @@ export const CustomAlertDialog = ({
       return;
     }
 
-    onConfirm(entry);
+    if (onConfirm) {
+      const { stock, ...dataWithoutStock } = entry;
+      onConfirm(dataWithoutStock);
+    }
+
     setNewEntry({
+      _id: "",
       name: "",
       quantity: 0,
       salePrice: 0,
