@@ -29,6 +29,10 @@ const saleItemSchema = new Schema(
       required: true,
       enum: ["Cash", "Transfer", "Unpaid"],
     },
+    soldBy: {
+      type: String,
+      required: true,
+    },
   },
   { _id: false }
 );

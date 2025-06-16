@@ -18,6 +18,7 @@ function Login() {
     setLoading(true);
     try {
       const response = await login(username, password);
+      console.log(response);
       if (response.success) {
         setUser({
           id: response.user.id,
@@ -31,14 +32,18 @@ function Login() {
           type: "success",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
       console.error(error);
+      if (error.response.status === 403) {
+      return  router.push("/pending");
+      }
       CustomToast({
         message: "Error",
-        description: "Something went wrong",
+        description: error.response.data.message,
         type: "error",
       });
+     
     }
   };
   return (

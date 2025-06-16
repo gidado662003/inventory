@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { getReport } from "../api";
 import { ClipLoader } from "react-spinners";
+import { TopBar } from "@/components/TopBar";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -169,7 +170,9 @@ function Report() {
   const totalItems = report.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <>
+    <TopBar/>
+    <div className="max-w-4xl mt-10 mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Sales Analytics</h1>
         <div className="flex items-center space-x-2">
@@ -408,6 +411,7 @@ function Report() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </>
   );
 }
 

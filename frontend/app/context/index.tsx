@@ -30,9 +30,19 @@ export const AuthProvider = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
+  const [user, setUserState] = useState<User | null>(null);
 
+  const router = useRouter();
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setUserState(JSON.parse(user));
+    }
+  }, []);
+  const setUser = (user: User | null) => {
+    setUserState(user);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
   const logout = () => {
     setUser(null);
     router.push("/login");

@@ -12,6 +12,7 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/app/api";
+import { useAuth } from "@/app/context";
 
 interface Product {
   _id: string;
@@ -21,6 +22,7 @@ interface Product {
 }
 
 function Products() {
+  const { user } = useAuth();
   const [data, setData] = useState<Product[]>([]);
   const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [searchEntry, setSearchEntry] = useState("");
@@ -207,6 +209,7 @@ function Products() {
                       <td className="px-4 py-3">
                         ₦{item.salePrice?.toLocaleString() ?? "0"}
                       </td>
+                      {user?.role === "admin" && (
                       <td
                         onClick={() => setToggleEdit(true)}
                         className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
@@ -226,11 +229,14 @@ function Products() {
                           />
                         )}
                       </td>
+                      )}
+                      {user?.role === "admin" && (
                       <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
                         {isDeleting === item._id ? (
                           <ClipLoader size={16} color="#dc2626" />
                         ) : (
                           <FaRegTrashAlt
+                            
                             size={16}
                             onClick={() => {
                               handleDelete(item._id);
@@ -238,6 +244,12 @@ function Products() {
                           />
                         )}
                       </td>
+                      )}
+                      {user?.role === "moderator" && (
+                        <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
+                            <FaRegTrashAlt size={16} />
+                          </td>
+                        )}
                     </tr>
                   ))}
                 </tbody>

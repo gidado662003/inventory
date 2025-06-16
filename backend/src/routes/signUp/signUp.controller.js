@@ -1,5 +1,6 @@
 const User = require("../../models/users.mongo");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const signUpController = async (req, res) => {
   const { username, password } = req.body;
@@ -28,6 +29,9 @@ const loginController = async (req, res) => {
   if (!isPasswordValid) {
     return res.status(401).json({ message: "Invalid username or password" });
   }
+  if (!user.approved) {
+    return res.status(403).json({ message: "Your account is pending approval" });
+  }
 
   const userWithoutPassword = {
     id: user._id,
@@ -35,11 +39,31 @@ const loginController = async (req, res) => {
     role: user.role || "user",
   };
 
+  const token = jwt.sign(userWithoutPassword, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+    path: "/",
+  });
   res.status(200).json({
     success: true,
     message: "Login successful",
     user: userWithoutPassword,
+    token: token,
   });
 };
 
-module.exports = { signUpController, loginController };
+const logoutController = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'strict',
+    path: '/'
+  });
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+};
+
+module.exports = { signUpController, loginController, logoutController };

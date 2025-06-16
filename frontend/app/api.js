@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const api = axios.create({
   baseURL: "http://localhost:5000/api",
+  withCredentials: true,
 });
 
 export const createProduct = async (product) => {
@@ -53,11 +54,12 @@ export const signUp = async (username, password) => {
 };
 
 export const login = async (username, password) => {
-  const response = await api.post("/signUp/login", { username, password });
+  const response = await api.post("/login", { username, password });
   return response.data;
 };
 
 export const getUsers = async () => {
+  
   const response = await api.get("/users");
   return response.data;
 };
@@ -72,3 +74,8 @@ export const deleteUser = async (id) => {
   const response = await api.delete(`/users/${id}`);
   return response.data;
 };
+
+export const logout = async()=>{
+  const reponse = await api.get("/logout")
+  return reponse
+}

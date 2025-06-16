@@ -15,6 +15,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useAuth } from "@/app/context";
 
 // Type Definitions
 type Item = {
@@ -42,6 +43,7 @@ const getCurrentTime = (): string => {
 };
 
 const SalesSpreadsheet = () => {
+  const { user } = useAuth();
   const [itemOptions, setItemOptions] = useState<Item[]>([]);
   const [data, setData] = useState<Matrix<CellBase<any>>>([
     [
@@ -119,6 +121,7 @@ const SalesSpreadsheet = () => {
   useEffect(() => {
     const fetchSales = async () => {
       const sales = await getSales();
+      console.log(sales);
       const newRows: Matrix<CellBase<any>> = [];
 
       sales.forEach((sale: any) => {
@@ -132,8 +135,8 @@ const SalesSpreadsheet = () => {
 
         sale.items.forEach((item: any) => {
           newRows.push([
-            { value: saleTime, readOnly: true },
-            { value: item.name, readOnly: true },
+            { value: saleTime },
+            { value: item.name },
             { value: item.quantity },
             { value: `₦${item.salePrice.toFixed(2)}` },
             { value: `₦${(item.quantity * item.salePrice).toFixed(2)}` },
@@ -230,11 +233,13 @@ const SalesSpreadsheet = () => {
         salePrice: item.salePrice,
         quantity: item.quantity,
         paymentType: item.paymentType,
+        soldBy: user?.username,
       })),
     };
 
     try {
-      await createSale(sale);
+      const response = await createSale(sale);
+      console.log(response);
       setCart([]); // Clear cart after successful sale
       setData((prev) => [...prev]); // Refresh the spreadsheet
     } catch (error) {

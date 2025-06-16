@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.use("/products", productRouter);
 router.use("/sales", salesRouter);
-router.use("/signUp", signUpRouter);
+router.use("/", signUpRouter);
 router.use("/users", usersRouter);
 
 module.exports = router;

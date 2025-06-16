@@ -5,6 +5,7 @@ import { ClipLoader } from "react-spinners";
 import { id } from "date-fns/locale";
 import { TopBar } from "@/components/TopBar";
 import { useAuth } from "../context";
+import { CustomToast } from "@/components/CustomToast";
 
 interface User {
   _id: string;
@@ -19,7 +20,7 @@ export default function Users() {
   const [reload, setReload] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  // Debug log to check current user role
+
   useEffect(() => {
     console.log("Current user:", currentUser);
   }, [currentUser]);
@@ -29,6 +30,7 @@ export default function Users() {
       setIsLoading("global");
       try {
         const response = await getUsers();
+        console.log(response.users);
         setUsers(response.users || []);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -54,7 +56,19 @@ export default function Users() {
   const handleDelete = async (id: string) => {
     setIsLoading(id);
     try {
-      await deleteUser(id);
+     const response = await deleteUser(id);
+     if(response.success){
+      CustomToast({
+        message: "User deleted successfully",
+        type: "success",
+      });
+      }else{
+        CustomToast({
+          message: "User deletion failed",
+          type: "error",
+        });
+     }
+     console.log(response);
       setReload((prev) => !prev);
     } catch (error) {
       console.error("Deletion failed:", error);
@@ -65,7 +79,7 @@ export default function Users() {
 
   // Check if current user is admin
   const isAdmin = currentUser?.role === "admin";
-  console.log("Is admin:", isAdmin); // Debug log
+
 
   return (
     <>
@@ -122,6 +136,7 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-2">
+                      {user.approved === false &&(<>
                         <button
                           onClick={() => handleApprove(user._id)}
                           disabled={isLoading === user._id || !isAdmin}
@@ -133,6 +148,7 @@ export default function Users() {
                             "Approve"
                           )}
                         </button>
+                      </>)}
                         <button
                           onClick={() => handleDelete(user._id)}
                           disabled={isLoading === user._id || !isAdmin}
