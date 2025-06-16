@@ -46,3 +46,29 @@ export const getReport = async (startDate, endDate) => {
   );
   return response.data;
 };
+
+export const signUp = async (username, password) => {
+  const response = await api.post("/signUp", { username, password });
+  return response.data;
+};
+
+export const login = async (username, password) => {
+  const response = await api.post("/signUp/login", { username, password });
+  return response.data;
+};
+
+export const getUsers = async () => {
+  const response = await api.get("/users");
+  return response.data;
+};
+
+export const approveUser = async (id, approved) => {
+  const response = await api.put(`/users/${id}`, { approved });
+  console.log(response);
+  return response.data;
+};
+
+export const deleteUser = async (id) => {
+  const response = await api.delete(`/users/${id}`);
+  return response.data;
+};

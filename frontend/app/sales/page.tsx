@@ -1,9 +1,15 @@
+"use client";
+
+import { TopBar } from "@/components/TopBar";
 import SalesSpreadsheet from "@/components/temp";
 
-export default function SalesPage() {
+export default function Sales() {
   return (
-    <div className="">
-      <SalesSpreadsheet />
-    </div>
+    <>
+      <TopBar />
+      <div className="p-6">
+        <SalesSpreadsheet />
+      </div>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { CustomAlertDialog } from "@/components/CustomAlertDialog";
 import { CustomToast } from "@/components/CustomToast";
 import { ClipLoader } from "react-spinners";
+import { TopBar } from "@/components/TopBar";
 import {
   createProduct,
   getProducts,
@@ -127,128 +128,133 @@ function Products() {
   };
 
   return (
-    <div className="mx-auto p-6">
-      <div className="flex items-center gap-4 mb-4">
-        <p
-          onClick={() => setRefresh(!refresh)}
-          className="cursor-pointer hover:text-red-600"
-        >
-          Refresh
-        </p>
-        {isLoading && <ClipLoader size={20} color="#dc2626" />}
-      </div>
+    <>
+      <TopBar />
+      <div className="mx-auto p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <p
+            onClick={() => setRefresh(!refresh)}
+            className="cursor-pointer hover:text-red-600"
+          >
+            Refresh
+          </p>
+          {isLoading && <ClipLoader size={20} color="#dc2626" />}
+        </div>
 
-      <input
-        type="text"
-        placeholder="Search Here"
-        value={searchEntry}
-        onChange={(e) => setSearchEntry(e.target.value)}
-        className="w-full bg-white md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-      />
-
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-xl font-semibold text-gray-800">Products List</p>
-
-        <CustomAlertDialog
-          trigger={
-            <button
-              onClick={() => setToggleEdit(false)}
-              className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors"
-            >
-              Add New
-            </button>
-          }
-          title="Add new entry"
-          description="Fill all items."
-          cancelText="Cancel"
-          confirmText="Submit"
-          onConfirm={handleCreateProduct}
-          stockToggle={toggleEdit}
+        <input
+          type="text"
+          placeholder="Search Here"
+          value={searchEntry}
+          onChange={(e) => setSearchEntry(e.target.value)}
+          className="w-full bg-white md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
         />
-      </div>
 
-      <hr className="mb-4 border-gray-200" />
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-xl font-semibold text-gray-800">Products List</p>
 
-      <div className="relative min-h-[330px] max-h-[350px] overflow-auto rounded-xl shadow-sm border border-gray-200">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-[330px]">
-            <ClipLoader size={40} color="#dc2626" />
-          </div>
-        ) : (
-          <table className="w-full table-auto text-sm">
-            <thead className="sticky top-0 bg-gray-100 text-gray-700 z-10">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">S/N</th>
-                <th className="px-4 py-3 text-left font-medium">Name</th>
-                <th className="px-4 py-3 text-left font-medium">Stock</th>
-                <th className="px-4 py-3 text-left font-medium">Sale Price</th>
-                <th className="px-4 py-3 text-center font-medium"></th>
-                <th className="px-4 py-3 text-center font-medium"></th>
-              </tr>
-            </thead>
+          <CustomAlertDialog
+            trigger={
+              <button
+                onClick={() => setToggleEdit(false)}
+                className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors"
+              >
+                Add New
+              </button>
+            }
+            title="Add new entry"
+            description="Fill all items."
+            cancelText="Cancel"
+            confirmText="Submit"
+            onConfirm={handleCreateProduct}
+            stockToggle={toggleEdit}
+          />
+        </div>
 
-            {render.length > 0 ? (
-              <tbody>
-                {render.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="odd:bg-white even:bg-gray-50 hover:bg-red-50 transition-colors"
-                  >
-                    <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3 capitalize">{item.name}</td>
-                    <td className="px-4 py-3 capitalize">
-                      {item.quantity?.toLocaleString() ?? "0"}
-                    </td>
-                    <td className="px-4 py-3">
-                      ₦{item.salePrice?.toLocaleString() ?? "0"}
-                    </td>
-                    <td
-                      onClick={() => setToggleEdit(true)}
-                      className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
+        <hr className="mb-4 border-gray-200" />
+
+        <div className="relative min-h-[330px] max-h-[350px] overflow-auto rounded-xl shadow-sm border border-gray-200">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-[330px]">
+              <ClipLoader size={40} color="#dc2626" />
+            </div>
+          ) : (
+            <table className="w-full table-auto text-sm">
+              <thead className="sticky top-0 bg-gray-100 text-gray-700 z-10">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">S/N</th>
+                  <th className="px-4 py-3 text-left font-medium">Name</th>
+                  <th className="px-4 py-3 text-left font-medium">Stock</th>
+                  <th className="px-4 py-3 text-left font-medium">
+                    Sale Price
+                  </th>
+                  <th className="px-4 py-3 text-center font-medium"></th>
+                  <th className="px-4 py-3 text-center font-medium"></th>
+                </tr>
+              </thead>
+
+              {render.length > 0 ? (
+                <tbody>
+                  {render.map((item, index) => (
+                    <tr
+                      key={index}
+                      className="odd:bg-white even:bg-gray-50 hover:bg-red-50 transition-colors"
                     >
-                      {isUpdating === item._id ? (
-                        <ClipLoader size={16} color="#dc2626" />
-                      ) : (
-                        <CustomAlertDialog
-                          trigger={<MdEdit size={18} />}
-                          title="Edit entry"
-                          description="Fill all items."
-                          cancelText="Cancel"
-                          confirmText="Submit"
-                          onConfirm={(data) => handleUpdate(data, item._id)}
-                          initialData={item}
-                          stockToggle={toggleEdit}
-                        />
-                      )}
-                    </td>
-                    <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
-                      {isDeleting === item._id ? (
-                        <ClipLoader size={16} color="#dc2626" />
-                      ) : (
-                        <FaRegTrashAlt
-                          size={16}
-                          onClick={() => {
-                            handleDelete(item._id);
-                          }}
-                        />
-                      )}
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3 capitalize">{item.name}</td>
+                      <td className="px-4 py-3 capitalize">
+                        {item.quantity?.toLocaleString() ?? "0"}
+                      </td>
+                      <td className="px-4 py-3">
+                        ₦{item.salePrice?.toLocaleString() ?? "0"}
+                      </td>
+                      <td
+                        onClick={() => setToggleEdit(true)}
+                        className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
+                      >
+                        {isUpdating === item._id ? (
+                          <ClipLoader size={16} color="#dc2626" />
+                        ) : (
+                          <CustomAlertDialog
+                            trigger={<MdEdit size={18} />}
+                            title="Edit entry"
+                            description="Fill all items."
+                            cancelText="Cancel"
+                            confirmText="Submit"
+                            onConfirm={(data) => handleUpdate(data, item._id)}
+                            initialData={item}
+                            stockToggle={toggleEdit}
+                          />
+                        )}
+                      </td>
+                      <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
+                        {isDeleting === item._id ? (
+                          <ClipLoader size={16} color="#dc2626" />
+                        ) : (
+                          <FaRegTrashAlt
+                            size={16}
+                            onClick={() => {
+                              handleDelete(item._id);
+                            }}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : (
+                <tbody>
+                  <tr>
+                    <td colSpan={6} className="text-center py-6 text-gray-500">
+                      No item found
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            ) : (
-              <tbody>
-                <tr>
-                  <td colSpan={6} className="text-center py-6 text-gray-500">
-                    No item found
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-        )}
+                </tbody>
+              )}
+            </table>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -9,8 +9,11 @@ import { FcSalesPerformance } from "react-icons/fc";
 import { RiCustomerService2Line } from "react-icons/ri";
 import { TbReport } from "react-icons/tb";
 import { IoIosMenu, IoIosLogOut } from "react-icons/io";
+import { FaUsers } from "react-icons/fa";
+import { useAuth } from "@/app/context";
 
 function Navbar() {
+  const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
 
@@ -33,6 +36,11 @@ function Navbar() {
       icon: <FcSalesPerformance className="min-w-[24px]" size={24} />,
     },
     {
+      name: "Users",
+      link: "/users",
+      icon: <FaUsers className="min-w-[24px]" size={24} />,
+    },
+    {
       name: "Customers",
       link: "/customers",
       icon: <RiCustomerService2Line className="min-w-[24px]" size={24} />,
@@ -43,6 +51,9 @@ function Navbar() {
       icon: <TbReport className="min-w-[24px]" size={24} />,
     },
   ];
+  if (pathname === "/login" || pathname === "/signUp") {
+    return null;
+  }
 
   return (
     <div
@@ -94,9 +105,12 @@ function Navbar() {
       {/* Footer */}
       <div className="p-4 border-t border-[#2a2a2a]">
         {isOpen ? (
-          <button className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition-colors text-sm font-medium">
+          <button
+            onClick={logout}
+            className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition-colors text-sm font-medium"
+          >
             <IoIosLogOut size={18} />
-            Logout
+            <Link href="/login">Logout</Link>
           </button>
         ) : (
           <button
