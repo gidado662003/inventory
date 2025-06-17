@@ -1,7 +1,7 @@
 "use client";
 
 import { TopBar } from "@/components/TopBar";
-import SalesSpreadsheet from "@/components/temp";
+import SalesSpreadsheet from "@/components/SalesSpreadsheet";
 
 export default function Sales() {
   return (

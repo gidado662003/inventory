@@ -36,14 +36,13 @@ function Login() {
       setLoading(false);
       console.error(error);
       if (error.response.status === 403) {
-      return  router.push("/pending");
+        return router.push("/pending");
       }
       CustomToast({
         message: "Error",
         description: error.response.data.message,
         type: "error",
       });
-     
     }
   };
   return (

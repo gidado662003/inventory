@@ -59,7 +59,6 @@ export const login = async (username, password) => {
 };
 
 export const getUsers = async () => {
-  
   const response = await api.get("/users");
   return response.data;
 };
@@ -75,7 +74,7 @@ export const deleteUser = async (id) => {
   return response.data;
 };
 
-export const logout = async()=>{
-  const reponse = await api.get("/logout")
-  return reponse
-}
+export const logout = async () => {
+  const reponse = await api.get("/logout");
+  return reponse;
+};

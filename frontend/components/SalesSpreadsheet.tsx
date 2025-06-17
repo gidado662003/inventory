@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
 import { AiOutlineDelete } from "react-icons/ai";
 import { getProducts, createSale, getSales } from "@/app/api";
+import { CustomToast } from "./CustomToast";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -168,6 +169,15 @@ const SalesSpreadsheet = () => {
 
     const itemData = itemOptions.find((item) => item.name === selectedItem);
     if (!itemData) return;
+
+    if (itemData.quantity < parseInt(quantity)) {
+      CustomToast({
+        message: "Not enough stock",
+        description: `Please select a lower quantity. ${itemData.quantity} in stock`,
+        type: "error",
+      });
+      return;
+    }
 
     setCart((prevCart) => {
       const existingIndex = prevCart.findIndex(
