@@ -51,7 +51,7 @@ function Navbar() {
       icon: <TbReport className="min-w-[24px]" size={24} />,
     },
   ];
-  if (pathname === "/login" || pathname === "/signUp" || pathname === "/pending") {
+    if (pathname === "/login" || pathname === "/signUp" || pathname === "/pending" || pathname === "/") {
     return null;
   }
 

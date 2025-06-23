@@ -31,7 +31,7 @@ const loginController = async (req, res) => {
   }
   if (!user.approved) {
     return res.status(403).json({ message: "Your account is pending approval" });
-  }
+  } 
 
   const userWithoutPassword = {
     id: user._id,

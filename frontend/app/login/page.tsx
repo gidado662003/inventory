@@ -18,7 +18,6 @@ function Login() {
     setLoading(true);
     try {
       const response = await login(username, password);
-      console.log(response);
       if (response.success) {
         setUser({
           id: response.user.id,
@@ -34,7 +33,7 @@ function Login() {
       }
     } catch (error: any) {
       setLoading(false);
-      console.error(error);
+      console.log(error);
       if (error.response.status === 403) {
         return router.push("/pending");
       }

@@ -22,7 +22,6 @@ export default function Users() {
 
 
   useEffect(() => {
-    console.log("Current user:", currentUser);
   }, [currentUser]);
 
   useEffect(() => {
@@ -30,7 +29,6 @@ export default function Users() {
       setIsLoading("global");
       try {
         const response = await getUsers();
-        console.log(response.users);
         setUsers(response.users || []);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -68,7 +66,6 @@ export default function Users() {
           type: "error",
         });
      }
-     console.log(response);
       setReload((prev) => !prev);
     } catch (error) {
       console.error("Deletion failed:", error);

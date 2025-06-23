@@ -8,7 +8,6 @@ const authMiddleware = require("../../middleware/auth.middleware");
 
 const usersRouter = express.Router();
 
-// Protect all routes with authentication
 usersRouter.use(authMiddleware);
 
 usersRouter.get("/", getUsersController);

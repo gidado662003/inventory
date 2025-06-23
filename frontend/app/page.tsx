@@ -1,12 +1,7 @@
-"use client";
-import { FaUserCircle } from "react-icons/fa";
-import { TopBar } from "@/components/TopBar";
+import { redirect } from "next/navigation";
+
 
 export default function Home() {
-  return (
-    <>
-      <TopBar />
-      <div className="p-6">{/* Your home page content */}</div>
-    </>
-  );
+  redirect("/login");
+  return null;
 }

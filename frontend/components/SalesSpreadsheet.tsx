@@ -122,7 +122,6 @@ const SalesSpreadsheet = () => {
   useEffect(() => {
     const fetchSales = async () => {
       const sales = await getSales();
-      console.log(sales);
       const newRows: Matrix<CellBase<any>> = [];
 
       sales.forEach((sale: any) => {

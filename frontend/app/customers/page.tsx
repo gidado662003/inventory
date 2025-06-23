@@ -6,7 +6,6 @@ import { TopBar } from "@/components/TopBar";
 export default function Page() {
   const handleDelete = () => {
     // your delete logic here
-    console.log("Item deleted");
   };
 
   return (

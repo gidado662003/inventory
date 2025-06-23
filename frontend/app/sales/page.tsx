@@ -1,4 +1,3 @@
-"use client";
 
 import { TopBar } from "@/components/TopBar";
 import SalesSpreadsheet from "@/components/SalesSpreadsheet";

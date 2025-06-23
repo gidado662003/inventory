@@ -7,6 +7,9 @@ const {
   getProductById,
   updateProduct,
 } = require("./product.controller");
+const authMiddleware = require("../../middleware/auth.middleware");
+
+productRouter.use(authMiddleware);
 
 productRouter.post("/", createProduct);
 productRouter.get("/", getProducts);
