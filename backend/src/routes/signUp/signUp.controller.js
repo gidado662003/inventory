@@ -2,6 +2,8 @@ const User = require("../../models/users.mongo");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const signUpController = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -30,8 +32,10 @@ const loginController = async (req, res) => {
     return res.status(401).json({ message: "Invalid username or password" });
   }
   if (!user.approved) {
-    return res.status(403).json({ message: "Your account is pending approval" });
-  } 
+    return res
+      .status(403)
+      .json({ message: "Your account is pending approval" });
+  }
 
   const userWithoutPassword = {
     id: user._id,
@@ -44,8 +48,8 @@ const loginController = async (req, res) => {
   });
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
     path: "/",
   });
   res.status(200).json({
@@ -57,13 +61,13 @@ const loginController = async (req, res) => {
 };
 
 const logoutController = (req, res) => {
-  res.clearCookie('token', {
+  res.clearCookie("token", {
     httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-    path: '/'
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
+    path: "/",
   });
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
+  res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
 module.exports = { signUpController, loginController, logoutController };
