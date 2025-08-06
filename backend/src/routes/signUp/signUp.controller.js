@@ -44,7 +44,7 @@ const loginController = async (req, res) => {
   });
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false,
+    secure: true,
     sameSite: "strict",
     path: "/",
   });
@@ -59,7 +59,7 @@ const loginController = async (req, res) => {
 const logoutController = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: false,
+    secure: true,
     sameSite: 'strict',
     path: '/'
   });
