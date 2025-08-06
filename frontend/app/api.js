@@ -151,3 +151,23 @@ export const logUserout = async () => {
     throw error.response?.data || error;
   }
 };
+
+export const getCustomers = async () => {
+  try {
+    const response = await api.get("/customers");
+    return response.data;
+  } catch (error) {
+    console.error("Error getting customers:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const createCustomer = async (customer) => {
+  try {
+    const response = await api.post("/customers", customer);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    throw error.response?.data || error;
+  }
+};
