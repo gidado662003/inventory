@@ -1,14 +1,14 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://inventorylana.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
 // Axios interceptor for 401 errors, except for /login endpoint
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     if (
       error.response &&
       error.response.status === 401 &&
