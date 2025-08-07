@@ -6,13 +6,12 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 
-
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://inventory-lzy8.vercel.app/"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
