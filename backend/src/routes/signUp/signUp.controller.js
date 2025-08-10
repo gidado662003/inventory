@@ -50,8 +50,7 @@ const loginController = async (req, res) => {
     httpOnly: true,
     secure: isProduction, // true in production, false in dev (unless using HTTPS locally)
     sameSite: isProduction ? "none" : "lax", // "none" in prod, "lax" in dev
-    path: "/",
-    ...(isProduction && { domain: ".inventorylana.onrender.com" }), // Only set domain in production
+    path: "/", // Only set domain in production
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
   res.status(200).json({
