@@ -46,14 +46,14 @@ const loginController = async (req, res) => {
   const token = jwt.sign(userWithoutPassword, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
- res.cookie("token", token, {
-  httpOnly: true,
-  secure: isProduction, // true in production, false in dev (unless using HTTPS locally)
-  sameSite: isProduction ? "none" : "lax", // "none" in prod, "lax" in dev
-  path: "/",
-  ...(isProduction && { domain: ".inventorylana.onrender.com" }), // Only set domain in production
-  maxAge: 24 * 60 * 60 * 1000, // 1 day
-});
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: isProduction, // true in production, false in dev (unless using HTTPS locally)
+    sameSite: isProduction ? "none" : "lax", // "none" in prod, "lax" in dev
+    path: "/",
+    ...(isProduction && { domain: ".inventorylana.onrender.com" }), // Only set domain in production
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
   res.status(200).json({
     success: true,
     message: "Login successful",

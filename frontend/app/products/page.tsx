@@ -210,46 +210,45 @@ function Products() {
                         ₦{item.salePrice?.toLocaleString() ?? "0"}
                       </td>
                       {user?.role === "admin" && (
-                      <td
-                        onClick={() => setToggleEdit(true)}
-                        className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
-                      >
-                        {isUpdating === item._id ? (
-                          <ClipLoader size={16} color="#dc2626" />
-                        ) : (
-                          <CustomAlertDialog
-                            trigger={<MdEdit size={18} />}
-                            title="Edit entry"
-                            description="Fill all items."
-                            cancelText="Cancel"
-                            confirmText="Submit"
-                            onConfirm={(data) => handleUpdate(data, item._id)}
-                            initialData={item}
-                            stockToggle={toggleEdit}
-                          />
-                        )}
-                      </td>
+                        <td
+                          onClick={() => setToggleEdit(true)}
+                          className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
+                        >
+                          {isUpdating === item._id ? (
+                            <ClipLoader size={16} color="#dc2626" />
+                          ) : (
+                            <CustomAlertDialog
+                              trigger={<MdEdit size={18} />}
+                              title="Edit entry"
+                              description="Fill all items."
+                              cancelText="Cancel"
+                              confirmText="Submit"
+                              onConfirm={(data) => handleUpdate(data, item._id)}
+                              initialData={item}
+                              stockToggle={toggleEdit}
+                            />
+                          )}
+                        </td>
                       )}
                       {user?.role === "admin" && (
-                      <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
-                        {isDeleting === item._id ? (
-                          <ClipLoader size={16} color="#dc2626" />
-                        ) : (
-                          <FaRegTrashAlt
-                            
-                            size={16}
-                            onClick={() => {
-                              handleDelete(item._id);
-                            }}
-                          />
-                        )}
-                      </td>
+                        <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
+                          {isDeleting === item._id ? (
+                            <ClipLoader size={16} color="#dc2626" />
+                          ) : (
+                            <FaRegTrashAlt
+                              size={16}
+                              onClick={() => {
+                                handleDelete(item._id);
+                              }}
+                            />
+                          )}
+                        </td>
                       )}
                       {user?.role === "moderator" && (
                         <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
-                            <FaRegTrashAlt size={16} />
-                          </td>
-                        )}
+                          <FaRegTrashAlt size={16} />
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

@@ -27,8 +27,9 @@ const saleItemSchema = new Schema(
     paymentType: {
       type: String,
       required: true,
-      enum: ["Cash", "Transfer", "Unpaid"],
+      enum: ["Cash", "Transfer", "Unpaid", "Partial"],
     },
+    
     soldBy: {
       type: String,
       required: true,
@@ -43,6 +44,17 @@ const saleSchema = new Schema({
   totalAmount: {
     type: Number,
   },
+  amountDue: {
+    type: Number,
+    default: 0,
+  },
+  customerName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Customer",
+    required: function () {
+      return this.items.some((item) => item.paymentType === "Partial");
+    },
+  },
   date: {
     type: Date,
     default: Date.now,
@@ -55,6 +67,21 @@ saleSchema.pre("save", function (next) {
   });
 
   this.totalAmount = this.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+  if (
+    this.items.some(
+      (item) => item.paymentType === "Partial" 
+    )
+  ) {
+    if (!this.amountDue) {
+      this.amountDue = 0; // treat as zero if not set
+    }
+    this.amountDue = this.totalAmount - this.amountDue;
+  } else {
+    // Fully paid → nothing owed
+    this.amountDue = this.totalAmount;
+    this.amountDue = 0;
+  }
   next();
 });
 

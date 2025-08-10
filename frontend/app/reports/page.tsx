@@ -171,246 +171,246 @@ function Report() {
 
   return (
     <>
-    <TopBar/>
-    <div className="max-w-4xl mt-10 mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Sales Analytics</h1>
-        <div className="flex items-center space-x-2">
-          <Select
-            value={timeRange}
-            onValueChange={(value) => setTimeRange(value as TimeRange)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">Last 7 Days</SelectItem>
-              <SelectItem value="month">Last 30 Days</SelectItem>
-              <SelectItem value="custom">Custom Range</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="start-date"
-              className="block text-sm font-medium text-gray-700 mb-1"
+      <TopBar />
+      <div className="max-w-6xl mt-10 mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Sales Analytics</h1>
+          <div className="flex items-center space-x-2">
+            <Select
+              value={timeRange}
+              onValueChange={(value) => setTimeRange(value as TimeRange)}
             >
-              Start Date
-            </label>
-            <div className="relative">
-              <input
-                id="start-date"
-                type="date"
-                className="w-full px-3 py-2 border rounded-md"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setTimeRange("custom");
-                }}
-                aria-label="Start Date"
-                title="Start Date"
-                placeholder="Select start date"
-              />
-            </div>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">Last 7 Days</SelectItem>
+                <SelectItem value="month">Last 30 Days</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="end-date"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              End Date
-            </label>
-            <div className="relative">
-              <input
-                id="end-date"
-                type="date"
-                className="w-full px-3 py-2 border rounded-md"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setTimeRange("custom");
-                }}
-                aria-label="End Date"
-                title="End Date"
-                placeholder="Select end date"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-center mt-6 space-x-4">
-        <Button
-          onClick={handleGetReport}
-          disabled={loading || !startDate || !endDate}
-          className="px-6 py-2"
-        >
-          {loading ? (
-            <ClipLoader color="#ffffff" size={20} />
-          ) : (
-            "Generate Report"
-          )}
-        </Button>
-      </div>
-
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
-          <AlertDialogHeader>
-            <div className="flex justify-between items-center">
-              <AlertDialogTitle className="text-2xl font-bold text-gray-800">
-                Sales Report ({startDate} to {endDate})
-              </AlertDialogTitle>
-              <Button
-                variant="outline"
-                onClick={exportToCSV}
-                className="flex items-center gap-2"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="start-date"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                <Download size={16} />
-                Export CSV
-              </Button>
+                Start Date
+              </label>
+              <div className="relative">
+                <input
+                  id="start-date"
+                  type="date"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setTimeRange("custom");
+                  }}
+                  aria-label="Start Date"
+                  title="Start Date"
+                  placeholder="Select start date"
+                />
+              </div>
             </div>
-          </AlertDialogHeader>
+          </div>
 
-          {report.length > 0 ? (
-            <>
-              <div className="flex justify-between gap-4 mb-6">
-                <div className="bg-blue-50 p-4 w-full rounded-lg">
-                  <h3 className="text-sm font-medium text-blue-800">
-                    Total Sales
-                  </h3>
-                  <p className="text-2xl font-bold text-blue-600">
-                    ₦{totalSales.toFixed(2)}
-                  </p>
-                </div>
-                <div className="bg-green-50 p-4 w-full  text-center rounded-lg">
-                  <h3 className="text-sm font-medium text-green-800">
-                    Quantity Sold
-                  </h3>
-                  <p className="text-2xl font-bold text-green-600">
-                    {totalItems}
-                  </p>
-                </div>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="end-date"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                End Date
+              </label>
+              <div className="relative">
+                <input
+                  id="end-date"
+                  type="date"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setTimeRange("custom");
+                  }}
+                  aria-label="End Date"
+                  title="End Date"
+                  placeholder="Select end date"
+                />
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div className="h-80 mb-8">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => [`₦${value}`, "Total Sales"]}
-                    />
-                    <Legend />
-                    <Bar
-                      dataKey="total"
-                      name="Daily Sales"
-                      fill="#8884d8"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+        <div className="flex justify-center mt-6 space-x-4">
+          <Button
+            onClick={handleGetReport}
+            disabled={loading || !startDate || !endDate}
+            className="px-6 py-2"
+          >
+            {loading ? (
+              <ClipLoader color="#ffffff" size={20} />
+            ) : (
+              "Generate Report"
+            )}
+          </Button>
+        </div>
+
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+            <AlertDialogHeader>
+              <div className="flex justify-between items-center">
+                <AlertDialogTitle className="text-2xl font-bold text-gray-800">
+                  Sales Report ({startDate} to {endDate})
+                </AlertDialogTitle>
+                <Button
+                  variant="outline"
+                  onClick={exportToCSV}
+                  className="flex items-center gap-2"
+                >
+                  <Download size={16} />
+                  Export CSV
+                </Button>
               </div>
+            </AlertDialogHeader>
 
-              <div className="border rounded-lg overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full divide-y divide-gray-200 text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Product
-                        </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Qty
-                        </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Unit Price
-                        </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Total
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {report.map((item) => (
-                        <tr
-                          key={item._id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {format(parseISO(item.date), "MMM dd, yyyy")}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {item.name}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right">
-                            {item.quantity}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right">
-                            ₦{item.salePrice.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right">
-                            ₦{(item.quantity * item.salePrice).toFixed(2)}
+            {report.length > 0 ? (
+              <>
+                <div className="flex justify-between gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 w-full rounded-lg">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      Total Sales
+                    </h3>
+                    <p className="text-2xl font-bold text-blue-600">
+                      ₦{totalSales.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-green-50 p-4 w-full  text-center rounded-lg">
+                    <h3 className="text-sm font-medium text-green-800">
+                      Quantity Sold
+                    </h3>
+                    <p className="text-2xl font-bold text-green-600">
+                      {totalItems.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-80 mb-8">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value) => [`₦${value}`, "Total Sales"]}
+                      />
+                      <Legend />
+                      <Bar
+                        dataKey="total"
+                        name="Daily Sales"
+                        fill="#8884d8"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="border rounded-lg overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full divide-y divide-gray-200 text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Product
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Qty
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Unit Price
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Total
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {report.map((item) => (
+                          <tr
+                            key={item._id}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {format(parseISO(item.date), "MMM dd, yyyy")}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {item.name}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right">
+                              {item.quantity}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right">
+                              ₦{item.salePrice.toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right">
+                              ₦{(item.quantity * item.salePrice).toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-gray-50 font-semibold">
+                          <td className="px-4 py-3">Summary</td>
+                          <td className="px-4 py-3"></td>
+                          <td className="px-4 py-3 text-right">{totalItems}</td>
+                          <td className="px-4 py-3"></td>
+                          <td className="px-4 py-3 text-right">
+                            ₦{totalSales.toLocaleString()}
                           </td>
                         </tr>
-                      ))}
-                      <tr className="bg-gray-50 font-semibold">
-                        <td className="px-4 py-3">Summary</td>
-                        <td className="px-4 py-3"></td>
-                        <td className="px-4 py-3 text-right">{totalItems}</td>
-                        <td className="px-4 py-3"></td>
-                        <td className="px-4 py-3 text-right">
-                          ₦{totalSales.toFixed(2)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="py-12 text-center">
+                <svg
+                  className="mx-auto h-16 w-16 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h3 className="mt-4 text-lg font-medium text-gray-900">
+                  No sales data found
+                </h3>
+                <p className="mt-2 text-sm text-gray-500">
+                  No records were found for the selected date range. Try
+                  adjusting your filters.
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="py-12 text-center">
-              <svg
-                className="mx-auto h-16 w-16 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No sales data found
-              </h3>
-              <p className="mt-2 text-sm text-gray-500">
-                No records were found for the selected date range. Try adjusting
-                your filters.
-              </p>
+            )}
+            <div className="mt-6 flex justify-end">
+              <AlertDialogCancel className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800">
+                Close Report
+              </AlertDialogCancel>
             </div>
-          )}
-          <div className="mt-6 flex justify-end">
-            <AlertDialogCancel className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800">
-              Close Report
-            </AlertDialogCancel>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </>
   );
 }

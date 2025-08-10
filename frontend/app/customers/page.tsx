@@ -19,36 +19,35 @@ import {
 import { CustomToast } from "@/components/CustomToast";
 
 export default function Page() {
-  const [ customers, setCustomers ] = useState([] as Customer[]);
+  const [customers, setCustomers] = useState([] as Customer[]);
   console.log(customers);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
-  useEffect(()=>{
-const fetchCustomers = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getCustomers();
-      setCustomers(data);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch customers";
-      setError(errorMessage);
-      CustomToast({
-        message: "Error",
-        description: errorMessage,
-        type: "error",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-}
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getCustomers();
+        setCustomers(data);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch customers";
+        setError(errorMessage);
+        CustomToast({
+          message: "Error",
+          description: errorMessage,
+          type: "error",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchCustomers();
-  },[])
+  }, []);
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -64,7 +63,6 @@ const fetchCustomers = async () => {
     try {
       await createCustomer(data);
       setIsCreating(false);
-
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create customers";
@@ -75,7 +73,6 @@ const fetchCustomers = async () => {
         type: "error",
       });
     }
-    
   };
 
   const handleViewDetails = (customer: Customer) => {

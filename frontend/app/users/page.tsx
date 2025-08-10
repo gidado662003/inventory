@@ -1,11 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { approveUser, getUsers, deleteUser } from "../api";
+import { approveUser, getUsers, deleteUser, logUserout } from "../api";
 import { ClipLoader } from "react-spinners";
 import { id } from "date-fns/locale";
 import { TopBar } from "@/components/TopBar";
 import { useAuth } from "../context";
 import { CustomToast } from "@/components/CustomToast";
+import { useRouter } from "next/navigation";
 
 interface User {
   _id: string;
@@ -19,10 +20,9 @@ export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [reload, setReload] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const router = useRouter();
 
-
-  useEffect(() => {
-  }, [currentUser]);
+  useEffect(() => {}, [currentUser]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,6 +46,14 @@ export default function Users() {
       setReload((prev) => !prev);
     } catch (error) {
       console.error("Approval failed:", error);
+      if ((error as any).auth === false) {
+        logUserout();
+        router.push("/login");
+      }
+      CustomToast({
+        message: "Approval failed",
+        type: "error",
+      });
     } finally {
       setIsLoading(null);
     }
@@ -54,21 +62,25 @@ export default function Users() {
   const handleDelete = async (id: string) => {
     setIsLoading(id);
     try {
-     const response = await deleteUser(id);
-     if(response.success){
-      CustomToast({
-        message: "User deleted successfully",
-        type: "success",
-      });
-      }else{
+      const response = await deleteUser(id);
+      if (response.success) {
+        CustomToast({
+          message: "User deleted successfully",
+          type: "success",
+        });
+      } else {
         CustomToast({
           message: "User deletion failed",
           type: "error",
         });
-     }
+      }
       setReload((prev) => !prev);
     } catch (error) {
       console.error("Deletion failed:", error);
+      CustomToast({
+        message: "Deletion failed",
+        type: "error",
+      });
     } finally {
       setIsLoading(null);
     }
@@ -76,7 +88,6 @@ export default function Users() {
 
   // Check if current user is admin
   const isAdmin = currentUser?.role === "admin";
-
 
   return (
     <>
@@ -133,19 +144,21 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-2">
-                      {user.approved === false &&(<>
-                        <button
-                          onClick={() => handleApprove(user._id)}
-                          disabled={isLoading === user._id || !isAdmin}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isLoading === user._id ? (
-                            <ClipLoader size={16} color="#fff" />
-                          ) : (
-                            "Approve"
-                          )}
-                        </button>
-                      </>)}
+                        {user.approved === false && (
+                          <>
+                            <button
+                              onClick={() => handleApprove(user._id)}
+                              disabled={isLoading === user._id || !isAdmin}
+                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isLoading === user._id ? (
+                                <ClipLoader size={16} color="#fff" />
+                              ) : (
+                                "Approve"
+                              )}
+                            </button>
+                          </>
+                        )}
                         <button
                           onClick={() => handleDelete(user._id)}
                           disabled={isLoading === user._id || !isAdmin}

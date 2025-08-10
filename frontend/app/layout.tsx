@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
+import ClientNavbar from "@/components/ClientNavbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "./context";
 
@@ -36,7 +36,7 @@ export default function RootLayout({
         <AuthProvider>
           <div className="flex h-screen">
             {/* Sidebar */}
-            <Navbar />
+            <ClientNavbar />
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">{children}</main>
