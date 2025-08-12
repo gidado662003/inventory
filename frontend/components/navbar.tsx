@@ -12,6 +12,7 @@ import { IoIosMenu, IoIosLogOut, IoIosClose } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
 import { useAuth } from "@/app/context";
 import { useMediaQuery } from "@uidotdev/usehooks";
+import Image from "next/image";
 
 interface NavItem {
   name: string;
@@ -109,7 +110,10 @@ function Navbar() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
         {isOpen && (
-          <h1 className="text-lg font-bold whitespace-nowrap">Inventory</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold whitespace-nowrap">Inventory</h1>
+            <Image src="/logo.svg" alt="logo" width={50} height={50} />
+          </div>
         )}
         <button
           onClick={() => setIsOpen(!isOpen)}
