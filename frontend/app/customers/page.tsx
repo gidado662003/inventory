@@ -4,7 +4,7 @@ import { TopBar } from "@/components/TopBar";
 import { Customer } from "@/types/customer";
 import { CustomerCard } from "@/components/CustomerCard";
 import { CustomerForm } from "@/components/CustomerForm";
-import { getCustomers, createCustomer } from "../api";
+import { getCustomers, createCustomer, deleteCustomer } from "../api";
 
 import { useState, useEffect } from "react";
 import { FiPlus, FiSearch, FiUser } from "react-icons/fi";
@@ -89,6 +89,27 @@ export default function Page() {
       description: "Customer edit feature is coming soon",
       type: "info",
     });
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCustomer(id);
+      setCustomers(customers.filter((customer) => customer._id !== id));
+      CustomToast({
+        message: "Customer deleted",
+        description: "Customer deleted successfully",
+        type: "success",
+      });
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete customer";
+      setError(errorMessage);
+      CustomToast({
+        message: "Error",
+        description: errorMessage,
+        type: "error",
+      });
+    }
   };
 
   return (
@@ -191,6 +212,7 @@ export default function Page() {
                 customer={customer}
                 onViewDetails={handleViewDetails}
                 onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </div>

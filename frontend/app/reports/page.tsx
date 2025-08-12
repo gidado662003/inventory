@@ -43,7 +43,7 @@ interface ReportItem {
   category?: string;
 }
 
-type TimeRange = "today" | "week" | "month" | "custom";
+type TimeRange = "today" | "yesterday" | "week" | "month" | "custom";
 
 interface ChartDataPoint {
   date: string;
@@ -71,6 +71,10 @@ function Report() {
     switch (timeRange) {
       case "today":
         setStartDate(todayStr);
+        setEndDate(todayStr);
+        break;
+      case "yesterday":
+        setStartDate(format(subDays(today, 1), "yyyy-MM-dd"));
         setEndDate(todayStr);
         break;
       case "week":
@@ -185,6 +189,7 @@ function Report() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
                 <SelectItem value="week">Last 7 Days</SelectItem>
                 <SelectItem value="month">Last 30 Days</SelectItem>
                 <SelectItem value="custom">Custom Range</SelectItem>

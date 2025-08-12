@@ -10,6 +10,7 @@ export const TopBar = () => {
   return (
     <div className="flex items-center justify-between bg-white px-6 py-4 border-b border-gray-200 shadow-sm">
       <div className="text-sm font-medium text-gray-700">
+        <p className="cursor-pointer">open</p>
         {now.toDateString()}
       </div>
       <div className="flex items-center gap-4">

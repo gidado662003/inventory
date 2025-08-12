@@ -171,3 +171,13 @@ export const createCustomer = async (customer) => {
     throw error.response?.data || error;
   }
 };
+
+export const deleteCustomer = async (id) => {
+  try {
+    const response = await api.delete(`/customers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+    throw error.response?.data || error;
+  }
+};
