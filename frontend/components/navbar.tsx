@@ -11,7 +11,6 @@ import { TbReport } from "react-icons/tb";
 import { IoIosMenu, IoIosLogOut, IoIosClose } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
 import { useAuth } from "@/app/context";
-import { useMediaQuery } from "@uidotdev/usehooks";
 import Image from "next/image";
 
 interface NavItem {
@@ -28,20 +27,8 @@ function Navbar() {
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const isSmallDevice = useMediaQuery("only screen and (max-width  : 768px)");
-
   const hiddenPaths = ["/login", "/signUp", "/pending", "/"];
   const shouldHide = hiddenPaths.includes(pathname);
-
-  // ✅ Always call hooks before returning
-  useEffect(() => {
-    if (isSmallDevice) {
-      setIsOpen(false);
-    } else {
-      setIsOpen(true);
-      setIsMobileMenuOpen(false);
-    }
-  }, [isSmallDevice]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
