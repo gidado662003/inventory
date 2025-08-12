@@ -142,13 +142,15 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
       </div>
 
       {/* Save Button */}
-      <button
-        onClick={handleSaveSale}
-        disabled={cart.length === 0 || paymentType === ""}
-        className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        ✅ Save to Sales
-      </button>
+      {
+        <button
+          onClick={handleSaveSale}
+          disabled={cart.length === 0 || paymentType === ""}
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          ✅ Save to Sales
+        </button>
+      }
     </div>
   );
 };

@@ -89,6 +89,14 @@ export default function Users() {
   // Check if current user is admin
   const isAdmin = currentUser?.role === "admin";
 
+  if (isLoading === "global") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader size={40} color="#dc2626" />
+      </div>
+    );
+  }
+
   return (
     <>
       <TopBar />
