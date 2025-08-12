@@ -27,7 +27,34 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
-  const isSmallDevice = useMediaQuery("only screen and (max-width : 768px)");
+
+  const isSmallDevice = useMediaQuery("only screen and (max-width  : 768px)");
+
+  const hiddenPaths = ["/login", "/signUp", "/pending", "/"];
+  const shouldHide = hiddenPaths.includes(pathname);
+
+  // ✅ Always call hooks before returning
+  useEffect(() => {
+    if (isSmallDevice) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+      setIsMobileMenuOpen(false);
+    }
+  }, [isSmallDevice]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (shouldHide) return null;
 
   const navItems: NavItem[] = [
     {
@@ -70,39 +97,11 @@ function Navbar() {
     },
   ];
 
-  const hiddenPaths = ["/login", "/signUp", "/pending", "/"];
-  if (hiddenPaths.includes(pathname)) {
-    return null;
-  }
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  useEffect(() => {
-    if (isSmallDevice) {
-      setIsOpen(false);
-    } else {
-      setIsOpen(true);
-      setIsMobileMenuOpen(false);
-    }
-  }, [isSmallDevice]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        setIsMobileMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  // Desktop Sidebar
   const DesktopSidebar = () => (
     <div
-      ref={navRef}
+      // ref={navRef}
       className={`z-20 bg-[#1a1a1a] text-white flex-col border-r border-[#2a2a2a] shadow-lg transition-all duration-300 ease-in-out ${
         isOpen ? "w-60" : "w-20"
       } h-full hidden md:flex`}
@@ -166,7 +165,6 @@ function Navbar() {
     </div>
   );
 
-  // Mobile Menu Overlay
   const MobileMenu = () => (
     <div
       className={`fixed inset-0 z-30 bg-black/30 backdrop-blur-lg border border-white/10 shadow-lg rounded-2xl transition-opacity duration-300 ${
@@ -234,7 +232,6 @@ function Navbar() {
     </div>
   );
 
-  // Mobile Bottom Navigation
   const MobileBottomNav = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-[#1a1a1a] border-t border-[#2a2a2a] z-20 md:hidden">
       <div className="flex justify-around overflow-x-auto">
@@ -255,17 +252,6 @@ function Navbar() {
             </Link>
           );
         })}
-        {/* <button
-          onClick={toggleMobileMenu}
-          className={`flex flex-col items-center py-2 px-1 w-full ${
-            isMobileMenuOpen ? "text-red-500" : "text-gray-300"
-          }`}
-        >
-          <div className="text-center">
-            <IoIosMenu size={20} />
-            <span className="text-xs mt-1">More</span>
-          </div>
-        </button> */}
       </div>
     </div>
   );
