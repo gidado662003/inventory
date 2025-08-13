@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { approveUser, getUsers, deleteUser, logUserout } from "../api";
 import { ClipLoader } from "react-spinners";
-import { id } from "date-fns/locale";
 import { TopBar } from "@/components/TopBar";
 import { useAuth } from "../context";
 import { CustomToast } from "@/components/CustomToast";
 import { useRouter } from "next/navigation";
+import { FiTrash2, FiCheck } from "react-icons/fi";
 
 interface User {
   _id: string;
@@ -21,8 +21,7 @@ export default function Users() {
   const [reload, setReload] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const router = useRouter();
-
-  useEffect(() => {}, [currentUser]);
+  const isAdmin = currentUser?.role === "admin";
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -50,10 +49,7 @@ export default function Users() {
         logUserout();
         router.push("/login");
       }
-      CustomToast({
-        message: "Approval failed",
-        type: "error",
-      });
+      CustomToast({ message: "Approval failed", type: "error" });
     } finally {
       setIsLoading(null);
     }
@@ -64,35 +60,23 @@ export default function Users() {
     try {
       const response = await deleteUser(id);
       if (response.success) {
-        CustomToast({
-          message: "User deleted successfully",
-          type: "success",
-        });
+        CustomToast({ message: "User deleted successfully", type: "success" });
       } else {
-        CustomToast({
-          message: "User deletion failed",
-          type: "error",
-        });
+        CustomToast({ message: "User deletion failed", type: "error" });
       }
       setReload((prev) => !prev);
     } catch (error) {
       console.error("Deletion failed:", error);
-      CustomToast({
-        message: "Deletion failed",
-        type: "error",
-      });
+      CustomToast({ message: "Deletion failed", type: "error" });
     } finally {
       setIsLoading(null);
     }
   };
 
-  // Check if current user is admin
-  const isAdmin = currentUser?.role === "admin";
-
   if (isLoading === "global") {
     return (
       <div className="flex justify-center items-center h-screen">
-        <ClipLoader size={40} color="#dc2626" />
+        <ClipLoader size={40} color="#ef4444" />
       </div>
     );
   }
@@ -100,91 +84,73 @@ export default function Users() {
   return (
     <>
       <TopBar />
-      <div className="p-6">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">
-              Users Management
-            </h1>
-          </div>
+      <div className="p-6 max-w-7xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
+          Users Management
+        </h1>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Username
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.username}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 capitalize">
-                        {user.role}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.approved
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {user.approved ? "Approved" : "Pending"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
-                        {user.approved === false && (
-                          <>
-                            <button
-                              onClick={() => handleApprove(user._id)}
-                              disabled={isLoading === user._id || !isAdmin}
-                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isLoading === user._id ? (
-                                <ClipLoader size={16} color="#fff" />
-                              ) : (
-                                "Approve"
-                              )}
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => handleDelete(user._id)}
-                          disabled={isLoading === user._id || !isAdmin}
-                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isLoading === user._id ? (
-                            <ClipLoader size={16} color="#fff" />
-                          ) : (
-                            "Delete"
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {users.map((user) => (
+            <div
+              key={user._id}
+              className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-6 transition-transform hover:scale-[1.02]"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-gray-500 to-gray-700 text-white flex items-center justify-center text-lg font-bold shadow-md">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {user.username}
+                  </h2>
+                  <p className="text-sm text-gray-500 capitalize">
+                    {user.role}
+                  </p>
+                </div>
+              </div>
+
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${
+                  user.approved
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {user.approved ? "Approved" : "Pending Approval"}
+              </span>
+
+              <div className="flex gap-3">
+                {!user.approved && (
+                  <button
+                    onClick={() => handleApprove(user._id)}
+                    disabled={isLoading === user._id || !isAdmin}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-all"
+                  >
+                    {isLoading === user._id ? (
+                      <ClipLoader size={16} color="#fff" />
+                    ) : (
+                      <>
+                        <FiCheck size={16} /> Approve
+                      </>
+                    )}
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(user._id)}
+                  disabled={isLoading === user._id || !isAdmin}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-all"
+                >
+                  {isLoading === user._id ? (
+                    <ClipLoader size={16} color="#fff" />
+                  ) : (
+                    <>
+                      <FiTrash2 size={16} /> Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </>

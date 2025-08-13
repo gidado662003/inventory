@@ -13,7 +13,7 @@ async function createSale(req, res) {
 
     // Check if any item has paymentType "Partial" and requires customerName
     const hasPartialPayment = items.some(
-      (item) => item.paymentType === "Partial"
+      (item) => item.paymentType === "Outstanding"
     );
 
     if (hasPartialPayment) {

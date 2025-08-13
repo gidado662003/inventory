@@ -26,8 +26,9 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
   );
 
   const handlePaymentTypeChange = (type: PaymentType) => {
+    const newType = type === "Partial/Unpaid" ? "Outstanding" : type;
     setPaymentType(type);
-    onUpdatePaymentType(type);
+    onUpdatePaymentType(newType);
   };
 
   const handleSaveSale = () => {
@@ -52,7 +53,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
 
       <div className="space-y-3">
         <h4 className="text-sm font-medium text-gray-700">Payment Method</h4>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {PAYMENT_OPTIONS.map(({ type, color }) => (
             <button
               key={type}
@@ -70,7 +71,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         </div>
 
         {/* Partial Payment Details */}
-        {(paymentType === "Partial" || paymentType === "Unpaid") && (
+        {paymentType === "Partial/Unpaid" && (
           <div className="space-y-3 mt-3 animate-fadeIn">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -117,7 +118,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                   </span>
                   <input
                     type="number"
-                    readOnly={paymentType === "Unpaid"}
+                    // readOnly={paymentType === "Partial/Unpaid"}
                     max={totalAmount}
                     value={amountPaid}
                     onChange={(e) => setAmountPaid(Number(e.target.value))}

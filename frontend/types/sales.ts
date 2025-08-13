@@ -29,7 +29,7 @@ export interface SalesSummary {
   totalSales: number;
 }
 
-export type PaymentType = "Cash" | "Transfer" | "Unpaid" | "Partial";
+export type PaymentType = "Cash" | "Transfer" | "Partial/Unpaid";
 
 export interface PaymentOption {
   type: PaymentType;
@@ -48,13 +48,13 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
     icon: "📱",
     color: "bg-blue-100 text-blue-800",
   },
+  // {
+  //   type: "Unpaid",
+  //   icon: "📝",
+  //   color: "bg-yellow-100 text-yellow-800",
+  // },
   {
-    type: "Unpaid",
-    icon: "📝",
-    color: "bg-yellow-100 text-yellow-800",
-  },
-  {
-    type: "Partial",
+    type: "Partial/Unpaid",
     icon: "💰",
     color: "bg-purple-100 text-purple-800",
   },

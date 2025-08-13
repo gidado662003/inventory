@@ -55,6 +55,15 @@ export default function Page() {
       customer.phone?.includes(searchTerm)
   );
 
+  const fetchCustomers = async () => {
+    try {
+      const data = await getCustomers();
+      setCustomers(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleCreateCustomer = async (data: {
     customerName: string;
     phone: string;
@@ -63,6 +72,7 @@ export default function Page() {
     try {
       await createCustomer(data);
       setIsCreating(false);
+      await fetchCustomers();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create customers";

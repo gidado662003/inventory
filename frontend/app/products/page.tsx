@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { MdEdit } from "react-icons/md";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { MdEdit, MdAdd, MdRefresh } from "react-icons/md";
+import { FaRegTrashAlt, FaSearch } from "react-icons/fa";
 import { CustomAlertDialog } from "@/components/CustomAlertDialog";
 import { CustomToast } from "@/components/CustomToast";
 import { ClipLoader } from "react-spinners";
@@ -31,7 +31,39 @@ function Products() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Product;
+    direction: "ascending" | "descending";
+  } | null>(null);
 
+  // Sorting functionality
+  const requestSort = (key: keyof Product) => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "ascending"
+    ) {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedData = () => {
+    if (!sortConfig) return render;
+
+    return [...render].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  // Search functionality
   useEffect(() => {
     const filteredSearch = data.filter((item) =>
       item.name.toLowerCase().includes(searchEntry.toLowerCase())
@@ -40,7 +72,9 @@ function Products() {
   }, [searchEntry, data]);
 
   const render = searchEntry ? filteredData : data;
+  const sortedData = getSortedData();
 
+  // CRUD operations
   const handleDelete = async (id: string) => {
     try {
       setIsDeleting(id);
@@ -87,6 +121,7 @@ function Products() {
     }
   };
 
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -129,141 +164,233 @@ function Products() {
     }
   };
 
+  // Get sort indicator
+  const getSortIndicator = (key: keyof Product) => {
+    if (!sortConfig || sortConfig.key !== key) return null;
+    return sortConfig.direction === "ascending" ? "↑" : "↓";
+  };
+
   return (
     <>
       <TopBar />
-      <div className="mx-auto p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <p
-            onClick={() => setRefresh(!refresh)}
-            className="cursor-pointer hover:text-red-600"
-          >
-            Refresh
-          </p>
-          {isLoading && <ClipLoader size={20} color="#dc2626" />}
+      <div className="mx-auto p-4 md:p-6 max-w-6xl">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Stock Management
+            </h1>
+            {/* <p className="text-gray-600">Manage your inventory products</p> */}
+          </div>
+
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative flex-grow md:flex-grow-0">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchEntry}
+                onChange={(e) => setSearchEntry(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+
+            {user?.role === "admin" && (
+              <CustomAlertDialog
+                trigger={
+                  <button
+                    onClick={() => setToggleEdit(false)}
+                    className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors"
+                  >
+                    Add New
+                  </button>
+                }
+                title="Add new entry"
+                description="Fill all items."
+                cancelText="Cancel"
+                confirmText="Submit"
+                onConfirm={handleCreateProduct}
+                stockToggle={toggleEdit}
+              />
+            )}
+          </div>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search Here"
-          value={searchEntry}
-          onChange={(e) => setSearchEntry(e.target.value)}
-          className="w-full bg-white md:w-[330px] p-3 rounded-xl mb-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-xl font-semibold text-gray-800">Products List</p>
-
-          <CustomAlertDialog
-            trigger={
-              <button
-                onClick={() => setToggleEdit(false)}
-                className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors"
-              >
-                Add New
-              </button>
-            }
-            title="Add new entry"
-            description="Fill all items."
-            cancelText="Cancel"
-            confirmText="Submit"
-            onConfirm={handleCreateProduct}
-            stockToggle={toggleEdit}
-          />
-        </div>
-
-        <hr className="mb-4 border-gray-200" />
-
-        <div className="relative min-h-[330px] max-h-[350px] overflow-auto rounded-xl shadow-sm border border-gray-200">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-[330px]">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {isLoading && data.length === 0 ? (
+            <div className="flex justify-center items-center h-64">
               <ClipLoader size={40} color="#dc2626" />
             </div>
           ) : (
-            <table className="w-full table-auto text-sm">
-              <thead className="sticky top-0 bg-gray-100 text-gray-700 z-10">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium">S/N</th>
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">Stock</th>
-                  <th className="px-4 py-3 text-left font-medium">
-                    Sale Price
-                  </th>
-                  <th className="px-4 py-3 text-center font-medium"></th>
-                  <th className="px-4 py-3 text-center font-medium"></th>
-                </tr>
-              </thead>
-
-              {render.length > 0 ? (
-                <tbody>
-                  {render.map((item, index) => (
-                    <tr
-                      key={index}
-                      className="odd:bg-white even:bg-gray-50 hover:bg-red-50 transition-colors"
-                    >
-                      <td className="px-4 py-3">{index + 1}</td>
-                      <td className="px-4 py-3 capitalize">{item.name}</td>
-                      <td className="px-4 py-3 capitalize">
-                        {item.quantity?.toLocaleString() ?? "0"}
-                      </td>
-                      <td className="px-4 py-3">
-                        ₦{item.salePrice?.toLocaleString() ?? "0"}
-                      </td>
-                      {user?.role === "admin" && (
-                        <td
-                          onClick={() => setToggleEdit(true)}
-                          className="py-3 text-center text-red-500 hover:text-red-700 cursor-pointer"
-                        >
-                          {isUpdating === item._id ? (
-                            <ClipLoader size={16} color="#dc2626" />
-                          ) : (
-                            <CustomAlertDialog
-                              trigger={<MdEdit size={18} />}
-                              title="Edit entry"
-                              description="Fill all items."
-                              cancelText="Cancel"
-                              confirmText="Submit"
-                              onConfirm={(data) => handleUpdate(data, item._id)}
-                              initialData={item}
-                              stockToggle={toggleEdit}
-                            />
-                          )}
-                        </td>
-                      )}
-                      {user?.role === "admin" && (
-                        <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
-                          {isDeleting === item._id ? (
-                            <ClipLoader size={16} color="#dc2626" />
-                          ) : (
-                            <FaRegTrashAlt
-                              size={16}
-                              onClick={() => {
-                                handleDelete(item._id);
-                              }}
-                            />
-                          )}
-                        </td>
-                      )}
-                      {user?.role === "moderator" && (
-                        <td className="py-3 text-center text-gray-600 hover:text-red-600 cursor-pointer">
-                          <FaRegTrashAlt size={16} />
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              ) : (
-                <tbody>
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto text-sm">
+                <thead className="bg-gray-50 text-gray-700">
                   <tr>
-                    <td colSpan={6} className="text-center py-6 text-gray-500">
-                      No item found
-                    </td>
+                    <th
+                      className="px-6 py-3 text-left font-medium cursor-pointer"
+                      onClick={() => requestSort("name")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Product Name
+                        <span className="text-xs">
+                          {getSortIndicator("name")}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 text-left font-medium cursor-pointer"
+                      onClick={() => requestSort("quantity")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Stock
+                        <span className="text-xs">
+                          {getSortIndicator("quantity")}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 text-left font-medium cursor-pointer"
+                      onClick={() => requestSort("salePrice")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Price
+                        <span className="text-xs">
+                          {getSortIndicator("salePrice")}
+                        </span>
+                      </div>
+                    </th>
+                    {user?.role && (
+                      <th className="px-6 py-3 text-right font-medium">
+                        Actions
+                      </th>
+                    )}
                   </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {sortedData.length > 0 ? (
+                    sortedData.map((item, index) => (
+                      <tr
+                        key={item._id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-gray-900 capitalize">
+                          {item.name}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex text-[14px] items-center px-2.5 py-0.5 rounded-full text-xs  ${
+                              item.quantity < 10
+                                ? " font-bold text-red-800"
+                                : item.quantity < 50
+                                ? "font-bold text-yellow-800"
+                                : "font-bold text-green-800"
+                            }`}
+                          >
+                            {item.quantity?.toLocaleString() ?? "0"}{" "}
+                            <span className="hidden lg:block ml-[2px]">
+                              {" "}
+                              in stock
+                            </span>
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-medium">
+                          ₦{item.salePrice?.toLocaleString() ?? "0"}
+                        </td>
+                        <td className="px-6 py-4 text-right space-x-2">
+                          {user?.role === "admin" && (
+                            <>
+                              {isUpdating === item._id ? (
+                                <ClipLoader size={16} color="#dc2626" />
+                              ) : (
+                                <CustomAlertDialog
+                                  trigger={
+                                    <button
+                                      className="text-gray-500 hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 transition-colors"
+                                      title="Edit product"
+                                      onClick={() => setToggleEdit(true)}
+                                    >
+                                      <MdEdit size={18} />
+                                    </button>
+                                  }
+                                  title={`Edit ${item.name}`}
+                                  description="Update the product details below."
+                                  cancelText="Cancel"
+                                  confirmText="Update"
+                                  onConfirm={(data) =>
+                                    handleUpdate(data, item._id)
+                                  }
+                                  initialData={item}
+                                  stockToggle={toggleEdit}
+                                />
+                              )}
+                              {isDeleting === item._id ? (
+                                <ClipLoader size={16} color="#dc2626" />
+                              ) : (
+                                <button
+                                  onClick={() => handleDelete(item._id)}
+                                  className="text-gray-500 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition-colors"
+                                  title="Delete product"
+                                >
+                                  <FaRegTrashAlt size={16} />
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {user?.role !== "admin" && (
+                            <button
+                              disabled
+                              className="text-gray-300 p-1 rounded-md cursor-not-allowed"
+                              title="Moderators cannot edit"
+                            >
+                              <MdEdit size={18} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center justify-center text-gray-500">
+                          <svg
+                            className="w-16 h-16 mb-4 text-gray-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                          </svg>
+                          <p className="text-lg font-medium">
+                            No products found
+                          </p>
+                          <p className="max-w-md mt-1">
+                            {searchEntry
+                              ? "Try adjusting your search query"
+                              : "Add your first product to get started"}
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
-              )}
-            </table>
+              </table>
+            </div>
           )}
         </div>
+
+        {sortedData.length > 0 && (
+          <div className="mt-4 text-sm text-gray-500">
+            Showing {sortedData.length} of {data.length} products
+          </div>
+        )}
       </div>
     </>
   );
