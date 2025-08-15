@@ -21,6 +21,20 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  lastUpdated: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Pre-save middleware to update lastUpdated timestamp
+userSchema.pre("save", function (next) {
+  this.lastUpdated = new Date();
+  next();
 });
 
 const User = mongoose.model("User", userSchema);

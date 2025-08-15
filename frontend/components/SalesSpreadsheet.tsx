@@ -26,15 +26,15 @@ const SalesSpreadsheet = () => {
   const [terminal, setTerminal] = useState<boolean>(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-8xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-100 rounded-xl">
+            <div className="p-3 bg-primary/10 rounded-xl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-indigo-600"
+                className="h-6 w-6 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -48,10 +48,10 @@ const SalesSpreadsheet = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-foreground">
                 Sales Dashboard
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Manage your sales and inventory
               </p>
             </div>
@@ -62,10 +62,10 @@ const SalesSpreadsheet = () => {
               summary={salesSummary}
               onCalculate={calculateTotals}
               trigger={
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-foreground hover:bg-muted transition-all">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-indigo-500"
+                    className="h-4 w-4 text-primary"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -82,7 +82,7 @@ const SalesSpreadsheet = () => {
               }
             />
             <button
-              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-white hover:bg-indigo-700 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all"
               onClick={() => setTerminal(!terminal)}
             >
               <svg
@@ -107,9 +107,11 @@ const SalesSpreadsheet = () => {
         {/* Main Content */}
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
           {/* Spreadsheet Section */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="font-medium text-gray-800">Sales Spreadsheet</h2>
+          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h2 className="font-medium text-card-foreground">
+                Sales Spreadsheet
+              </h2>
             </div>
             <div className="p-2 overflow-auto">
               <Spreadsheet
@@ -123,9 +125,11 @@ const SalesSpreadsheet = () => {
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Add Items Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-medium text-gray-800">Add Products</h2>
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">
+                  Add Products
+                </h2>
               </div>
               <div className="p-4">
                 <AddItemsForm
@@ -136,12 +140,12 @@ const SalesSpreadsheet = () => {
             </div>
 
             {/* Cart Items Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-medium text-gray-800">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">
                   Cart Items
                   {cart.length > 0 && (
-                    <span className="ml-2 bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    <span className="ml-2 bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
                       {cart.length} items
                     </span>
                   )}
@@ -153,9 +157,9 @@ const SalesSpreadsheet = () => {
             </div>
 
             {/* Payment Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-medium text-gray-800">Payment</h2>
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">Payment</h2>
               </div>
               <div className="p-4">
                 <PaymentSection

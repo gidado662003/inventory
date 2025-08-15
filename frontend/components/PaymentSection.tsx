@@ -40,10 +40,10 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4">
+    <div className="bg-muted p-4 rounded-lg shadow-sm space-y-4">
       <div className="flex justify-between items-center">
-        <span className="font-semibold text-gray-700">Total:</span>
-        <span className="text-lg font-bold text-blue-600">
+        <span className="font-semibold text-foreground">Total:</span>
+        <span className="text-lg font-bold text-primary">
           ₦
           {totalAmount.toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -52,7 +52,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
       </div>
 
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-700">Payment Method</h4>
+        <h4 className="text-sm font-medium text-foreground">Payment Method</h4>
         <div className="grid grid-cols-3 gap-3">
           {PAYMENT_OPTIONS.map(({ type, color }) => (
             <button
@@ -61,8 +61,8 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
               onClick={() => handlePaymentTypeChange(type)}
               className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
                 paymentType === type
-                  ? `border-2 border-gray-900 ${color} font-semibold`
-                  : "border-gray-200 hover:bg-gray-50"
+                  ? `border-2 border-foreground ${color} font-semibold`
+                  : "border-border hover:bg-muted/50"
               }`}
             >
               <span>{type}</span>
@@ -74,12 +74,12 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         {paymentType === "Partial/Unpaid" && (
           <div className="space-y-3 mt-3 animate-fadeIn">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Customer Information
               </label>
               <div className="flex gap-2">
                 <select
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="flex-1 border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring outline-none bg-background text-foreground"
                   value={customer}
                   onChange={(e) => setCustomer(e.target.value)}
                 >
@@ -92,7 +92,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </select>
                 <button
                   type="button"
-                  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700 transition-colors"
+                  className="px-3 py-2 bg-muted hover:bg-muted/80 rounded-md text-foreground transition-colors"
                   onClick={() =>
                     CustomToast({
                       message: "Feature coming soon!",
@@ -109,11 +109,11 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Amount Paid
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₦
                   </span>
                   <input
@@ -123,17 +123,17 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     value={amountPaid}
                     onChange={(e) => setAmountPaid(Number(e.target.value))}
                     step="0.01"
-                    className="w-full pl-8 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full pl-8 border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring outline-none bg-background text-foreground"
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Balance Due
                 </label>
-                <div className="p-2 bg-gray-50 rounded-md border border-gray-200 font-medium">
+                <div className="p-2 bg-muted rounded-md border border-border font-medium text-foreground">
                   ₦{(totalAmount - amountPaid).toFixed(2)}
                 </div>
               </div>
@@ -147,7 +147,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         <button
           onClick={handleSaveSale}
           disabled={cart.length === 0 || paymentType === ""}
-          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           ✅ Save to Sales
         </button>

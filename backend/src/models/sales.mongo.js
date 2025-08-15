@@ -60,8 +60,19 @@ const saleSchema = new Schema({
     default: Date.now,
     index: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  lastUpdated: {
+    type: Date,
+    default: Date.now,
+  },
 });
 saleSchema.pre("save", function (next) {
+  // Update lastUpdated timestamp
+  this.lastUpdated = new Date();
+
   this.items.forEach((item) => {
     item.totalPrice = item.salePrice * item.quantity;
   });

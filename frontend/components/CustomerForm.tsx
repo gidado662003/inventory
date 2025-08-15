@@ -61,7 +61,7 @@ export function CustomerForm({
     try {
       await onSubmit(formData);
       setFormData({ customerName: "", phone: "" });
-        
+
       setErrors({});
     } catch (error) {
       // Error handling is done in the parent component
@@ -81,7 +81,7 @@ export function CustomerForm({
       <div className="space-y-2">
         <Label
           htmlFor="customerName"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
         >
           Customer Name*
         </Label>
@@ -90,17 +90,17 @@ export function CustomerForm({
           id="customerName"
           value={formData.customerName}
           onChange={(e) => handleInputChange("customerName", e.target.value)}
-          className={errors.customerName ? "border-red-500" : ""}
+          className={errors.customerName ? "border-destructive" : ""}
           placeholder="Enter customer name"
           disabled={isLoading}
         />
         {errors.customerName && (
-          <p className="text-sm text-red-600">{errors.customerName}</p>
+          <p className="text-sm text-destructive">{errors.customerName}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+        <Label htmlFor="phone" className="text-sm font-medium text-foreground">
           Phone Number*
         </Label>
         <Input
@@ -108,11 +108,13 @@ export function CustomerForm({
           id="phone"
           value={formData.phone}
           onChange={(e) => handleInputChange("phone", e.target.value)}
-          className={errors.phone ? "border-red-500" : ""}
+          className={errors.phone ? "border-destructive" : ""}
           placeholder="08012345678"
           disabled={isLoading}
         />
-        {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
+        {errors.phone && (
+          <p className="text-sm text-destructive">{errors.phone}</p>
+        )}
       </div>
 
       <div className="flex gap-3 pt-4">
@@ -128,7 +130,7 @@ export function CustomerForm({
         <Button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-red-600 hover:bg-red-700"
+          className="flex-1 bg-primary hover:bg-primary/90"
         >
           {isLoading ? "Creating..." : "Create Customer"}
         </Button>

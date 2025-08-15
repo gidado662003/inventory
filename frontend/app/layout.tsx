@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientNavbar from "@/components/ClientNavbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "./context";
+import { ThemeProvider } from "./context/themeContext";
 
 // Fonts
 const geistSans = Geist({
@@ -33,18 +34,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} dark:bg-[#111] antialiased bg-gray-100 h-screen`}
       >
         <Toaster />
-        <AuthProvider>
-          <div className="flex h-screen">
-            {/* Sidebar */}
-            <ClientNavbar />
 
-            {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">{children}</main>
-          </div>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="flex h-screen">
+              {/* Sidebar */}
+              <ClientNavbar />
+
+              {/* Main Content */}
+              <main className="flex-1 overflow-y-auto">{children}</main>
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

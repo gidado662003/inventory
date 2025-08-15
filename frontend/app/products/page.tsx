@@ -176,23 +176,23 @@ function Products() {
       <div className="mx-auto p-4 md:p-6 max-w-6xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-2xl font-bold text-foreground">
               Stock Management
             </h1>
-            {/* <p className="text-gray-600">Manage your inventory products</p> */}
+            {/* <p className="text-muted-foreground">Manage your inventory products</p> */}
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative flex-grow md:flex-grow-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400" />
+                <FaSearch className="text-muted-foreground" />
               </div>
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchEntry}
                 onChange={(e) => setSearchEntry(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
               />
             </div>
 
@@ -201,7 +201,7 @@ function Products() {
                 trigger={
                   <button
                     onClick={() => setToggleEdit(false)}
-                    className="cursor-pointer bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-sm font-medium transition-colors"
+                    className="cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 py-2 text-sm font-medium transition-colors"
                   >
                     Add New
                   </button>
@@ -217,15 +217,15 @@ function Products() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
           {isLoading && data.length === 0 ? (
             <div className="flex justify-center items-center h-64">
-              <ClipLoader size={40} color="#dc2626" />
+              <ClipLoader size={40} color="hsl(var(--primary))" />
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full table-auto text-sm">
-                <thead className="bg-gray-50 text-gray-700">
+                <thead className="bg-muted text-foreground">
                   <tr>
                     <th
                       className="px-6 py-3 text-left font-medium cursor-pointer"
@@ -268,24 +268,24 @@ function Products() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {sortedData.length > 0 ? (
                     sortedData.map((item, index) => (
                       <tr
                         key={item._id}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-muted/50 transition-colors"
                       >
-                        <td className="px-6 py-4 font-medium text-gray-900 capitalize">
+                        <td className="px-6 py-4 font-medium text-card-foreground capitalize">
                           {item.name}
                         </td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex text-[14px] items-center px-2.5 py-0.5 rounded-full text-xs  ${
                               item.quantity < 10
-                                ? " font-bold text-red-800"
+                                ? " font-bold text-destructive"
                                 : item.quantity < 50
-                                ? "font-bold text-yellow-800"
-                                : "font-bold text-green-800"
+                                ? "font-bold text-yellow-600"
+                                : "font-bold text-green-600"
                             }`}
                           >
                             {item.quantity?.toLocaleString() ?? "0"}{" "}
@@ -295,19 +295,22 @@ function Products() {
                             </span>
                           </span>
                         </td>
-                        <td className="px-6 py-4 font-medium">
+                        <td className="px-6 py-4 font-medium text-card-foreground">
                           ₦{item.salePrice?.toLocaleString() ?? "0"}
                         </td>
                         <td className="px-6 py-4 text-right space-x-2">
                           {user?.role === "admin" && (
                             <>
                               {isUpdating === item._id ? (
-                                <ClipLoader size={16} color="#dc2626" />
+                                <ClipLoader
+                                  size={16}
+                                  color="hsl(var(--primary))"
+                                />
                               ) : (
                                 <CustomAlertDialog
                                   trigger={
                                     <button
-                                      className="text-gray-500 hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 transition-colors"
+                                      className="text-muted-foreground hover:text-primary p-1 rounded-md hover:bg-primary/10 transition-colors"
                                       title="Edit product"
                                       onClick={() => setToggleEdit(true)}
                                     >
@@ -326,11 +329,14 @@ function Products() {
                                 />
                               )}
                               {isDeleting === item._id ? (
-                                <ClipLoader size={16} color="#dc2626" />
+                                <ClipLoader
+                                  size={16}
+                                  color="hsl(var(--destructive))"
+                                />
                               ) : (
                                 <button
                                   onClick={() => handleDelete(item._id)}
-                                  className="text-gray-500 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition-colors"
+                                  className="text-muted-foreground hover:text-destructive p-1 rounded-md hover:bg-destructive/10 transition-colors"
                                   title="Delete product"
                                 >
                                   <FaRegTrashAlt size={16} />
@@ -341,7 +347,7 @@ function Products() {
                           {user?.role !== "admin" && (
                             <button
                               disabled
-                              className="text-gray-300 p-1 rounded-md cursor-not-allowed"
+                              className="text-muted-foreground/50 p-1 rounded-md cursor-not-allowed"
                               title="Moderators cannot edit"
                             >
                               <MdEdit size={18} />
@@ -353,9 +359,9 @@ function Products() {
                   ) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center justify-center text-gray-500">
+                        <div className="flex flex-col items-center justify-center text-muted-foreground">
                           <svg
-                            className="w-16 h-16 mb-4 text-gray-300"
+                            className="w-16 h-16 mb-4 text-muted-foreground/30"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -387,7 +393,7 @@ function Products() {
         </div>
 
         {sortedData.length > 0 && (
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-muted-foreground">
             Showing {sortedData.length} of {data.length} products
           </div>
         )}

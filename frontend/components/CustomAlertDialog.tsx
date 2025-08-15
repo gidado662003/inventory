@@ -113,12 +113,12 @@ export const CustomAlertDialog = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
-      <AlertDialogContent className="max-w-md rounded-xl">
-        <AlertDialogHeader className="border-b pb-4">
-          <AlertDialogTitle className="text-xl font-semibold text-gray-800">
+      <AlertDialogContent className="max-w-md rounded-xl bg-card border border-border">
+        <AlertDialogHeader className="border-b border-border pb-4">
+          <AlertDialogTitle className="text-xl font-semibold text-card-foreground">
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-600">
+          <AlertDialogDescription className="text-muted-foreground">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -127,13 +127,13 @@ export const CustomAlertDialog = ({
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
-              Product Name <span className="text-red-500">*</span>
+              Product Name <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition bg-background text-foreground"
               id="name"
               name="name"
               value={newEntry.name}
@@ -147,14 +147,14 @@ export const CustomAlertDialog = ({
             <div>
               <label
                 htmlFor="price"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
-                Price (₦) <span className="text-red-500">*</span>
+                Price (₦) <span className="text-destructive">*</span>
               </label>
               <div className="relative">
                 <input
                   type="number"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition bg-background text-foreground"
                   id="price"
                   name="salePrice"
                   value={newEntry.salePrice || ""}
@@ -169,13 +169,13 @@ export const CustomAlertDialog = ({
             <div>
               <label
                 htmlFor="quantity"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
-                Quantity <span className="text-red-500">*</span>
+                Quantity <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition bg-background text-foreground"
                 id="quantity"
                 name="quantity"
                 value={newEntry.quantity || ""}
@@ -190,13 +190,13 @@ export const CustomAlertDialog = ({
             <div>
               <label
                 htmlFor="stock"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
-                New Stock <span className="text-red-500">*</span>
+                New Stock <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition bg-background text-foreground"
                 id="stock"
                 name="stock"
                 value={newEntry.stock || ""}
@@ -208,13 +208,13 @@ export const CustomAlertDialog = ({
           )}
         </div>
 
-        <AlertDialogFooter className="border-t pt-4">
-          <AlertDialogCancel className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+        <AlertDialogFooter className="border-t border-border pt-4">
+          <AlertDialogCancel className="px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring transition">
             {cancelText}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
+            className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring transition"
           >
             {confirmText}
           </AlertDialogAction>
