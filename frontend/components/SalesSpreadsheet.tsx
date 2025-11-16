@@ -1,460 +1,175 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
-import { AiOutlineDelete } from "react-icons/ai";
-import { getProducts, createSale, getSales } from "@/app/api";
-import { CustomToast } from "./CustomToast";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { useAuth } from "@/app/context";
-
-// Type Definitions
-type Item = {
-  _id: string;
-  name: string;
-  salePrice: number;
-  quantity: number;
-};
-
-type CartItem = {
-  id: string;
-  name: string;
-  salePrice: number;
-  quantity: number;
-  paymentType: string;
-};
-
-const getCurrentTime = (): string => {
-  const now = new Date();
-  return now.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
+import { useSales } from "@/hooks/useSales";
+import { SalesSummary } from "./SalesSummary";
+import { AddItemsForm } from "./AddItemsForm";
+import { CartItems } from "./CartItems";
+import { PaymentSection } from "./PaymentSection";
 
 const SalesSpreadsheet = () => {
-  const { user } = useAuth();
-  const [itemOptions, setItemOptions] = useState<Item[]>([]);
-  const [data, setData] = useState<Matrix<CellBase<any>>>([
-    [
-      { value: "Time", readOnly: true },
-      { value: "Item", readOnly: true },
-      { value: "Quantity", readOnly: true },
-      { value: "Price", readOnly: true },
-      { value: "Total", readOnly: true },
-      { value: "Payment Type", readOnly: true },
-    ],
-  ]);
-  const [cash, setCash] = useState(0);
-  const [transfer, setTransfer] = useState(0);
-  const [unpaid, setUnpaid] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [totalSales, setTotalSales] = useState(0);
-  function calculateTotals() {
-    const parseAmount = (val: any): number => {
-      if (typeof val === "string") {
-        return Number(val.replace(/[₦,]/g, "")) || 0;
-      }
-      return typeof val === "number" ? val : 0;
-    };
+  const {
+    itemOptions,
+    data,
+    setData,
+    cart,
+    customers,
+    salesSummary,
+    addToCart,
+    removeFromCart,
+    updateCartPaymentType,
+    createNewSale,
+    calculateTotals,
+  } = useSales();
 
-    const cash = data
-      .slice(1)
-      .filter((row) => row[5]?.value === "Cash")
-      .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
+  const [terminal, setTerminal] = useState<boolean>(false);
 
-    const transfer = data
-      .slice(1)
-      .filter((row) => row[5]?.value === "Transfer")
-      .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
-
-    const unpaid = data
-      .slice(1)
-      .filter((row) => row[5]?.value === "Unpaid")
-      .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
-
-    setCash(cash);
-    setTransfer(transfer);
-    setUnpaid(unpaid);
-    setTotal(cash + transfer + unpaid);
-  }
-
-  useEffect(() => {
-    const header = data[0];
-    const priceColIndex = header.findIndex((item) => item?.value === "Total");
-    const quantityColIndex = header.findIndex(
-      (item) => item?.value === "Quantity"
-    );
-
-    if (priceColIndex !== -1 || quantityColIndex !== -1) {
-      const priceData = data.slice(1).map((row) => {
-        const val = row[priceColIndex]?.value;
-        return typeof val === "string"
-          ? Number(val.replace("₦", ""))
-          : Number(val);
-      });
-
-      const totalPrice = priceData.reduce((acc, item) => acc + item, 0);
-
-      const quantityData = data.slice(1).map((row) => {
-        const val = row[quantityColIndex]?.value;
-        return typeof val === "string"
-          ? Number(val.replace("₦", ""))
-          : Number(val);
-      });
-
-      const quantityPrice = quantityData.reduce((acc, item) => acc + item, 0);
-      setTotalSales(quantityPrice);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    const fetchSales = async () => {
-      const sales = await getSales();
-      const newRows: Matrix<CellBase<any>> = [];
-
-      sales.forEach((sale: any) => {
-        const saleTime = sale.date
-          ? new Date(sale.date).toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })
-          : getCurrentTime();
-
-        sale.items.forEach((item: any) => {
-          newRows.push([
-            { value: saleTime },
-            { value: item.name },
-            { value: item.quantity },
-            { value: `₦${item.salePrice.toFixed(2)}` },
-            { value: `₦${(item.quantity * item.salePrice).toFixed(2)}` },
-            { value: item.paymentType },
-          ]);
-        });
-      });
-      setData((prev) => [...prev, ...newRows]);
-    };
-
-    fetchSales();
-  }, []);
-
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [paymentType, setPaymentType] = useState("");
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const products = await getProducts();
-      setItemOptions(products);
-    };
-    fetchProducts();
-  }, [data]);
-
-  const handleAddToCart = () => {
-    if (!selectedItem || !quantity || parseInt(quantity) <= 0) return;
-
-    const itemData = itemOptions.find((item) => item.name === selectedItem);
-    if (!itemData) return;
-
-    if (itemData.quantity < parseInt(quantity)) {
-      CustomToast({
-        message: "Not enough stock",
-        description: `Please select a lower quantity. ${itemData.quantity} in stock`,
-        type: "error",
-      });
-      return;
-    }
-
-    setCart((prevCart) => {
-      const existingIndex = prevCart.findIndex(
-        (item) => item.name === selectedItem
-      );
-      const updatedCart = [...prevCart];
-
-      if (existingIndex >= 0) {
-        updatedCart[existingIndex].quantity += parseInt(quantity);
-      } else {
-        updatedCart.push({
-          id: itemData._id,
-          name: itemData.name,
-          salePrice: itemData.salePrice,
-          quantity: parseInt(quantity),
-          paymentType,
-        });
-      }
-
-      return updatedCart;
-    });
-
-    setSelectedItem("");
-    setQuantity("");
-    setPaymentType("");
-  };
-
-  const handleAddCartToSales = (): void => {
-    if (cart.length === 0) return;
-
-    const newRows = cart.map((item) => {
-      const total = (item.quantity * item.salePrice).toFixed(2);
-      return [
-        { value: getCurrentTime() },
-        { value: item.name },
-        { value: item.quantity.toString() },
-        { value: `₦${item.salePrice.toFixed(2)}` },
-        { value: `₦${total}` },
-        { value: paymentType },
-      ];
-    });
-
-    setData((prev) => [...prev, ...newRows]);
-    setCart([]);
-  };
-
-  const removeItemFromCart = (index: number) => {
-    const updatedCart = cart.filter((_, idx) => idx !== index);
-    setCart(updatedCart);
-  };
-
-  const totalAmount = cart.reduce(
-    (acc, item) => acc + item.quantity * item.salePrice,
-    0
-  );
-  const handleCreateSale = async () => {
-    if (cart.length === 0) return;
-
-    const sale = {
-      items: cart.map((item) => ({
-        product: item.id,
-        name: item.name,
-        salePrice: item.salePrice,
-        quantity: item.quantity,
-        paymentType: item.paymentType,
-        soldBy: user?.username,
-      })),
-    };
-
-    try {
-      const response = await createSale(sale);
-      console.log(response);
-      setCart([]); // Clear cart after successful sale
-      setData((prev) => [...prev]); // Refresh the spreadsheet
-    } catch (error) {
-      console.error("Error creating sale:", error);
-    }
-  };
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md max-w-6xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
-          🧾 Sales Spreadsheet
-        </h2>
-        <div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                onClick={calculateTotals}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-8xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-primary/10 rounded-xl">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Generate summary report
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-xl font-bold text-gray-800 mb-2">
-                  Sales Summary Report
-                </AlertDialogTitle>
-              </AlertDialogHeader>
-              <AlertDialogDescription className="space-y-3 text-gray-700">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <span className="font-medium">Cash at hand:</span>
-                  <span className="font-semibold">
-                    ₦{cash.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <span className="font-medium">Transfer:</span>
-                  <span className="font-semibold">
-                    ₦{transfer.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center border-b pb-2">
-                  <span className="font-medium">Unpaid:</span>
-                  <span className="font-semibold">
-                    ₦{unpaid.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                  <span className="font-bold">Total:</span>
-                  <span className="text-lg font-bold text-blue-600">
-                    ₦{total.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                  <span className="font-bold">Total Sales:</span>
-                  <span className="text-lg font-bold text-blue-600">
-                    {totalSales.toLocaleString()}
-                  </span>
-                </div>
-              </AlertDialogDescription>
-              <AlertDialogFooter className="mt-4">
-                <AlertDialogCancel className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 transition-colors">
-                  Close
-                </AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Spreadsheet Section */}
-        <div className="flex-1 overflow-auto border border-gray-200 rounded-lg p-2 shadow-sm">
-          <Spreadsheet data={data} onChange={setData} className="w-full" />
-        </div>
-
-        {/* Cart Section */}
-        <div className="w-full lg:w-96 space-y-4">
-          {/* Add Items Form */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">
-              🛒 Add Items
-            </h3>
-
-            <div className="space-y-3">
-              <select
-                aria-label="Select product"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-gray-700"
-                value={selectedItem}
-                onChange={(e) => setSelectedItem(e.target.value)}
-              >
-                <option value="">Select Item</option>
-                {itemOptions.length > 0 ? (
-                  itemOptions.map((item) => {
-                    return item.quantity > 0 ? (
-                      <option key={item.name} value={item.name}>
-                        {item.name} - ₦{item.salePrice.toLocaleString()} -{" "}
-                        {item.quantity} in stock
-                      </option>
-                    ) : (
-                      <option disabled key={item.name} value={item.name}>
-                        {item.name} - ₦{item.salePrice.toLocaleString()} - Out
-                        of stock
-                      </option>
-                    );
-                  })
-                ) : (
-                  <option value="">No items available</option>
-                )}
-              </select>
-
-              <input
-                type="number"
-                min="1"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="Quantity"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
-
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedItem || !quantity}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                ➕ Add to Cart
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Sales Dashboard
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Manage your sales and inventory
+              </p>
             </div>
           </div>
 
-          {/* Cart Items List */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-            <h4 className="text-sm font-medium text-gray-600 mb-2">
-              🛍 Cart Items
-            </h4>
-            {cart.length === 0 ? (
-              <p className="text-sm text-gray-500 italic">Your cart is empty</p>
-            ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                {cart.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex justify-between items-center bg-white px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+          <div className="flex flex-wrap gap-3">
+            <SalesSummary
+              summary={salesSummary}
+              onCalculate={calculateTotals}
+              trigger={
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-foreground hover:bg-muted transition-all">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <span className="font-medium text-gray-700">
-                      {item.name} × {item.quantity}
-                    </span>
-                    <span className="flex items-center gap-4 text-gray-600">
-                      ₦{(item.salePrice * item.quantity).toLocaleString()}
-                      <AiOutlineDelete
-                        className="text-red-600 cursor-pointer"
-                        onClick={() => removeItemFromCart(idx)}
-                      />
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Generate Report
+                </button>
+              }
+            />
+            <button
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary rounded-lg shadow-xs hover:shadow-sm text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all"
+              onClick={() => setTerminal(!terminal)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              {terminal ? "Close Terminal" : "POS Mode"}
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
+          {/* Spreadsheet Section */}
+          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h2 className="font-medium text-card-foreground">
+                Sales Spreadsheet
+              </h2>
+            </div>
+            <div className="p-2 overflow-auto">
+              <Spreadsheet
+                data={data}
+                onChange={setData}
+                className="w-full min-w-[600px]"
+              />
+            </div>
           </div>
 
-          {/* Payment & Save */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-700">Total:</span>
-              <span className="text-lg font-bold text-blue-600">
-                ₦
-                {totalAmount.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Add Items Card */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">
+                  Add Products
+                </h2>
+              </div>
+              <div className="p-4">
+                <AddItemsForm
+                  itemOptions={itemOptions}
+                  onAddToCart={addToCart}
+                />
+              </div>
             </div>
 
-            {/* Payment Type */}
-            <div className="flex justify-between text-sm font-medium text-gray-600">
-              {["Cash", "Transfer", "Unpaid"].map((type) => (
-                <label key={type} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={type}
-                    checked={paymentType === type}
-                    onChange={(e) => {
-                      setPaymentType(e.target.value);
-                      setCart((prev) => {
-                        return prev.map((item) => {
-                          return { ...item, paymentType: e.target.value };
-                        });
-                      });
-                    }}
-                  />
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </label>
-              ))}
+            {/* Cart Items Card */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">
+                  Cart Items
+                  {cart.length > 0 && (
+                    <span className="ml-2 bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      {cart.length} items
+                    </span>
+                  )}
+                </h2>
+              </div>
+              <div className="p-4">
+                <CartItems cart={cart} onRemoveItem={removeFromCart} />
+              </div>
             </div>
 
-            {/* Save Button */}
-            <button
-              onClick={() => {
-                handleAddCartToSales();
-                handleCreateSale();
-              }}
-              disabled={cart.length === 0 || paymentType === ""}
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              ✅ Save to Sales
-            </button>
+            {/* Payment Card */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h2 className="font-medium text-card-foreground">Payment</h2>
+              </div>
+              <div className="p-4">
+                <PaymentSection
+                  cart={cart}
+                  customers={customers}
+                  onUpdatePaymentType={updateCartPaymentType}
+                  onSaveSale={createNewSale}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

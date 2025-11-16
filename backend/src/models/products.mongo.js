@@ -17,10 +17,16 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  updatedAt: {
+  lastUpdated: {
     type: Date,
     default: Date.now,
   },
+});
+
+// Pre-save middleware to update lastUpdated timestamp
+productSchema.pre("save", function (next) {
+  this.lastUpdated = new Date();
+  next();
 });
 
 const Product = mongoose.model("Product", productSchema);

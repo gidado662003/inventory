@@ -1,14 +1,14 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
 // Axios interceptor for 401 errors, except for /login endpoint
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     if (
       error.response &&
       error.response.status === 401 &&
@@ -148,6 +148,36 @@ export const logUserout = async () => {
     return response;
   } catch (error) {
     console.error("Error logging out:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const getCustomers = async () => {
+  try {
+    const response = await api.get("/customers");
+    return response.data;
+  } catch (error) {
+    console.error("Error getting customers:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const createCustomer = async (customer) => {
+  try {
+    const response = await api.post("/customers", customer);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const deleteCustomer = async (id) => {
+  try {
+    const response = await api.delete(`/customers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting customer:", error);
     throw error.response?.data || error;
   }
 };

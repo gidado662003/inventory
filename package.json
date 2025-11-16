@@ -5,8 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "client": "cd frontend && npm run dev",
-    "server": "cd backend && npm run server",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "server": "cd backend && npm run start:dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install": "cd frontend && npm install && cd ../backend && npm install"
   },
   "keywords": [],
   "author": "",
