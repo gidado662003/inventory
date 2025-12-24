@@ -31,7 +31,6 @@ export const useSales = () => {
   );
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  console.log(customers);
   const [salesSummary, setSalesSummary] = useState<SalesSummary>({
     cash: 0,
     transfer: 0,
@@ -70,8 +69,6 @@ export const useSales = () => {
               (customer) => customer._id === sale.customerName
             );
             const name = getCustomer ? getCustomer?.customerName : "complete";
-            console.log(name);
-            console.log(getCustomer);
             newRows.push([
               { value: saleTime },
               { value: item.name },

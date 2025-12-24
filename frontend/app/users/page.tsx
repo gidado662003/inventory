@@ -23,8 +23,6 @@ export default function Users() {
   const router = useRouter();
   const isAdmin = currentUser?.role === "admin";
 
-  console.log(currentUser);
-
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading("global");

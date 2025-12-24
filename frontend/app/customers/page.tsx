@@ -25,7 +25,6 @@ import { CustomToast } from "@/components/CustomToast";
 
 export default function Page() {
   const [customers, setCustomers] = useState([] as Customer[]);
-  console.log(customers);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

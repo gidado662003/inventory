@@ -5,7 +5,6 @@ const Customer = require("../../models/customer.mongo");
 async function createSale(req, res) {
   try {
     const { items, customerName, amountPaid } = req.body;
-    console.log(items);
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Items array is required" });
