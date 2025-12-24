@@ -1,5 +1,81 @@
 const mongoose = require("mongoose");
 
+const itemsOwedSchema = new mongoose.Schema(
+  {
+    itemName: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 120,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
+    unitPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    amountPaid: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const owedGroupSchema = new mongoose.Schema(
+  {
+    items: [
+      {
+        itemName: {
+          type: String,
+          required: true,
+          trim: true,
+          maxlength: 120,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        unitPrice: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+      },
+    ],
+    total: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    amountPaid: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    outstanding: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    note: {
+      type: String,
+      trim: true,
+      maxlength: 200,
+    },
+  },
+  { timestamps: true }
+);
+
 const customerSchema = new mongoose.Schema(
   {
     customerName: {
@@ -30,6 +106,14 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 200,
+    },
+    itemsOwed: {
+      type: [itemsOwedSchema],
+      default: [],
+    },
+    owedGroups: {
+      type: [owedGroupSchema],
+      default: [],
     },
   },
   {

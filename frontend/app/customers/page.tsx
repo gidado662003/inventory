@@ -4,7 +4,12 @@ import { TopBar } from "@/components/TopBar";
 import { Customer } from "@/types/customer";
 import { CustomerCard } from "@/components/CustomerCard";
 import { CustomerForm } from "@/components/CustomerForm";
-import { getCustomers, createCustomer, deleteCustomer } from "../api";
+import {
+  getCustomers,
+  createCustomer,
+  deleteCustomer,
+  payCustomerOwedGroup,
+} from "../api";
 
 import { useState, useEffect } from "react";
 import { FiPlus, FiSearch, FiUser } from "react-icons/fi";
@@ -25,6 +30,13 @@ export default function Page() {
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [paymentInputs, setPaymentInputs] = useState<Record<string, string>>(
+    {}
+  );
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -86,11 +98,8 @@ export default function Page() {
   };
 
   const handleViewDetails = (customer: Customer) => {
-    CustomToast({
-      message: "Coming Soon",
-      description: "Customer details feature is coming soon",
-      type: "info",
-    });
+    setSelectedCustomer(customer);
+    setDetailsOpen(true);
   };
 
   const handleEdit = (customer: Customer) => {
@@ -113,6 +122,44 @@ export default function Page() {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to delete customer";
+      setError(errorMessage);
+      CustomToast({
+        message: "Error",
+        description: errorMessage,
+        type: "error",
+      });
+    }
+  };
+
+  const handlePayGroup = async (groupId: string) => {
+    if (!selectedCustomer) return;
+    const raw = paymentInputs[groupId];
+    const amount = Number(raw);
+    if (!amount || amount <= 0) {
+      CustomToast({
+        message: "Invalid amount",
+        description: "Enter a positive payment amount",
+        type: "error",
+      });
+      return;
+    }
+    try {
+      await payCustomerOwedGroup(selectedCustomer._id, groupId, amount);
+      CustomToast({
+        message: "Payment recorded",
+        description: "Outstanding updated for this group",
+        type: "success",
+      });
+      setPaymentInputs((prev) => ({ ...prev, [groupId]: "" }));
+      const refreshed = await getCustomers();
+      setCustomers(refreshed);
+      const current = refreshed.find(
+        (c: Customer) => c._id === selectedCustomer._id
+      );
+      setSelectedCustomer(current || null);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to record payment";
       setError(errorMessage);
       CustomToast({
         message: "Error",
@@ -174,7 +221,7 @@ export default function Page() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
+          <div className="flex  justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
           </div>
         ) : filteredCustomers.length === 0 ? (
@@ -228,6 +275,156 @@ export default function Page() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <AlertDialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
+          <AlertDialogHeader className="flex-shrink-0">
+            <AlertDialogTitle>
+              {selectedCustomer?.customerName || "Customer Details"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Items owed and payment status
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="flex-1 overflow-y-auto pr-1">
+            {selectedCustomer?.owedGroups &&
+            selectedCustomer.owedGroups.length > 0 ? (
+              <div className="mt-4 space-y-4">
+                {selectedCustomer.owedGroups.map((group) => (
+                  <div key={group._id} className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Group created:{" "}
+                          {group.createdAt
+                            ? new Date(group.createdAt).toLocaleString()
+                            : "—"}
+                        </p>
+                        <p className="text-sm">
+                          Items: {group.items.map((i) => i.itemName).join(", ")}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          Outstanding: ₦{group.outstanding.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Paid: ₦{group.amountPaid.toLocaleString()} / Total: ₦
+                          {group.total.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs divide-y divide-border">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="text-left px-2 py-2">Item</th>
+                            <th className="text-right px-2 py-2">Qty</th>
+                            <th className="text-right px-2 py-2">Unit Price</th>
+                            <th className="text-right px-2 py-2">Line Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {group.items.map((item, idx) => (
+                            <tr key={`${group._id}-${idx}`}>
+                              <td className="px-2 py-2">{item.itemName}</td>
+                              <td className="px-2 py-2 text-right">
+                                {item.quantity}
+                              </td>
+                              <td className="px-2 py-2 text-right">
+                                ₦{item.unitPrice.toLocaleString()}
+                              </td>
+                              <td className="px-2 py-2 text-right">
+                                ₦
+                                {(
+                                  item.unitPrice * item.quantity
+                                ).toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-3 flex flex-col sm:flex-row items-end gap-2">
+                      {group.outstanding > 0 && (
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          className="border rounded-md px-3 py-2 w-full sm:w-48"
+                          placeholder="Amount to pay"
+                          value={paymentInputs[group._id] || ""}
+                          onChange={(e) =>
+                            setPaymentInputs((prev) => ({
+                              ...prev,
+                              [group._id]: e.target.value,
+                            }))
+                          }
+                        />
+                      )}
+                      <button
+                        onClick={() => handlePayGroup(group._id)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+                        disabled={group.outstanding <= 0}
+                      >
+                        {group.outstanding <= 0 ? "Paid" : "Record Payment"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : selectedCustomer?.itemsOwed &&
+              selectedCustomer.itemsOwed.length > 0 ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-sm divide-y divide-border">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left px-3 py-2">Item</th>
+                      <th className="text-right px-3 py-2">Qty</th>
+                      <th className="text-right px-3 py-2">Unit Price</th>
+                      <th className="text-right px-3 py-2">Paid</th>
+                      <th className="text-right px-3 py-2">Outstanding</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {selectedCustomer.itemsOwed.map((item) => {
+                      const owed = item.unitPrice * item.quantity;
+                      const paid = item.amountPaid || 0;
+                      const outstanding = Math.max(owed - paid, 0);
+                      return (
+                        <tr
+                          key={item._id || `${item.itemName}-${item.unitPrice}`}
+                        >
+                          <td className="px-3 py-2">{item.itemName}</td>
+                          <td className="px-3 py-2 text-right">
+                            {item.quantity}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            ₦{item.unitPrice.toLocaleString()}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            ₦{paid.toLocaleString()}
+                          </td>
+                          <td className="px-3 py-2 text-right font-semibold">
+                            ₦{outstanding.toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="py-4 text-sm text-muted-foreground">
+                No items owed for this customer.
+              </div>
+            )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

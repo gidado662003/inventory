@@ -27,7 +27,7 @@ const saleItemSchema = new Schema(
     paymentType: {
       type: String,
       required: true,
-      enum: ["Cash", "Transfer", "Outstanding"],
+      enum: ["Cash", "Transfer", "outstanding"],
     },
 
     soldBy: {
@@ -52,7 +52,7 @@ const saleSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Customer",
     required: function () {
-      return this.items.some((item) => item.paymentType === "Outstanding");
+      return this.items.some((item) => item.paymentType === "outstanding");
     },
   },
   date: {
@@ -79,7 +79,7 @@ saleSchema.pre("save", function (next) {
 
   this.totalAmount = this.items.reduce((acc, item) => acc + item.totalPrice, 0);
 
-  if (this.items.some((item) => item.paymentType === "Outstanding")) {
+  if (this.items.some((item) => item.paymentType === "outstanding")) {
     if (!this.amountDue) {
       this.amountDue = 0; // treat as zero if not set
     }

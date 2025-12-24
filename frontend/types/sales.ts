@@ -23,7 +23,7 @@ export interface SaleData {
 export interface SalesSummary {
   cash: number;
   transfer: number;
-  unpaid: number;
+  outstanding: number;
   partial: number;
   total: number;
   totalSales: number;

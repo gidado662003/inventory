@@ -105,7 +105,11 @@ const SalesSpreadsheet = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
+        <div
+          className={`grid grid-cols-1 gap-6 ${
+            terminal ? "xl:grid-cols-[1fr_400px]" : "xl:grid-cols-1"
+          }`}
+        >
           {/* Spreadsheet Section */}
           <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
             <div className="p-4 border-b border-border">
@@ -123,54 +127,56 @@ const SalesSpreadsheet = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="space-y-6">
-            {/* Add Items Card */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h2 className="font-medium text-card-foreground">
-                  Add Products
-                </h2>
+          {terminal && (
+            <div className="space-y-6">
+              {/* Add Items Card */}
+              <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-border">
+                  <h2 className="font-medium text-card-foreground">
+                    Add Products
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <AddItemsForm
+                    itemOptions={itemOptions}
+                    onAddToCart={addToCart}
+                  />
+                </div>
               </div>
-              <div className="p-4">
-                <AddItemsForm
-                  itemOptions={itemOptions}
-                  onAddToCart={addToCart}
-                />
-              </div>
-            </div>
 
-            {/* Cart Items Card */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h2 className="font-medium text-card-foreground">
-                  Cart Items
-                  {cart.length > 0 && (
-                    <span className="ml-2 bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      {cart.length} items
-                    </span>
-                  )}
-                </h2>
+              {/* Cart Items Card */}
+              <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-border">
+                  <h2 className="font-medium text-card-foreground">
+                    Cart Items
+                    {cart.length > 0 && (
+                      <span className="ml-2 bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
+                        {cart.length} items
+                      </span>
+                    )}
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <CartItems cart={cart} onRemoveItem={removeFromCart} />
+                </div>
               </div>
-              <div className="p-4">
-                <CartItems cart={cart} onRemoveItem={removeFromCart} />
-              </div>
-            </div>
 
-            {/* Payment Card */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h2 className="font-medium text-card-foreground">Payment</h2>
-              </div>
-              <div className="p-4">
-                <PaymentSection
-                  cart={cart}
-                  customers={customers}
-                  onUpdatePaymentType={updateCartPaymentType}
-                  onSaveSale={createNewSale}
-                />
+              {/* Payment Card */}
+              <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-border">
+                  <h2 className="font-medium text-card-foreground">Payment</h2>
+                </div>
+                <div className="p-4">
+                  <PaymentSection
+                    cart={cart}
+                    customers={customers}
+                    onUpdatePaymentType={updateCartPaymentType}
+                    onSaveSale={createNewSale}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

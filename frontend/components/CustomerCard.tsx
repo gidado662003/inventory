@@ -17,6 +17,26 @@ export function CustomerCard({
   onEdit,
   onDelete,
 }: CustomerCardProps) {
+  const calculateOutstanding = (cust: Customer) => {
+    if (cust.owedGroups && cust.owedGroups.length > 0) {
+      return cust.owedGroups.reduce(
+        (acc, group) => acc + (group.outstanding || 0),
+        0
+      );
+    }
+    if (cust.itemsOwed && cust.itemsOwed.length > 0) {
+      return cust.itemsOwed.reduce((acc, item) => {
+        const owed = item.unitPrice * item.quantity;
+        const paid = item.amountPaid || 0;
+        return acc + Math.max(owed - paid, 0);
+      }, 0);
+    }
+    return cust.amountOwed || 0;
+  };
+
+  const totalOutstanding = calculateOutstanding(customer);
+  const totalGroups = customer.owedGroups?.length || 0;
+
   const formatPhoneNumber = (phone: string) => {
     // Format Nigerian phone number
     const cleaned = phone.replace(/\D/g, "");
@@ -56,10 +76,10 @@ export function CustomerCard({
           </div>
         </div>
 
-        {customer.amountOwed && customer.amountOwed > 0 ? (
+        {totalOutstanding > 0 ? (
           <div className="flex items-center gap-1 bg-destructive/10 text-destructive px-3 py-1 rounded-full text-sm border border-destructive/20">
             <AiOutlineExclamationCircle />
-            <span>Owes {formatCurrency(customer.amountOwed)}</span>
+            <span>Owes {formatCurrency(totalOutstanding)}</span>
           </div>
         ) : (
           <div className="text-green-600 bg-green-500/10 px-3 py-1 rounded-full text-sm border border-green-500/20">
@@ -76,6 +96,11 @@ export function CustomerCard({
           View Details
         </button>
         <div className="flex items-center gap-6">
+          {totalGroups > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {totalGroups} group{totalGroups > 1 ? "s" : ""} owed
+            </span>
+          )}
           <button
             onClick={() => onEdit(customer)}
             className="text-muted-foreground hover:text-primary text-sm transition-colors"

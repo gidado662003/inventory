@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
@@ -178,6 +178,19 @@ export const deleteCustomer = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting customer:", error);
+    throw error.response?.data || error;
+  }
+};
+
+export const payCustomerOwedGroup = async (customerId, groupId, amount) => {
+  try {
+    const response = await api.post(
+      `/customers/${customerId}/owed-groups/${groupId}/pay`,
+      { amount }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error paying owed group:", error);
     throw error.response?.data || error;
   }
 };

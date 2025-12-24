@@ -3,32 +3,30 @@ const dotenv = require("dotenv");
 const env = process.env.NODE_ENV || "development";
 
 // Load environment variables from .env.{environment} file
-dotenv.config({ path: `.env.${env}` });
+dotenv.config();
 
 const mongoose = require("mongoose");
 const http = require("http");
 const app = require("./app");
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
-
+const MONGODB_URI =
+  process.env.MONGO_URI || "mongodb://localhost:27017/inventoryDB";
+console.log(MONGODB_URI);
 const server = http.createServer(app);
 
 async function startServer() {
-  try {
-    // Connect to MongoDB first
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ Connected to MongoDB");
-
-    // Start the server
-    server.listen(PORT, () => {
-      console.log(`🚀 Server running in ${env} mode on port ${PORT}`);
+  await mongoose
+    .connect(MONGODB_URI)
+    .then(() => {
+      console.log("✅ Connected to MongoDB");
+      server.listen(PORT, "0.0.0.0", () => {
+        console.log(`🚀 Server is running on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Failed to connect to MongoDB", err);
     });
-  } catch (error) {
-    console.error("❌ Failed to connect to MongoDB:", error.message);
-    console.log("💡 Make sure MongoDB is running on your system");
-    process.exit(1);
-  }
 }
 
 startServer();

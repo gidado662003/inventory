@@ -35,7 +35,7 @@ export const useSales = () => {
   const [salesSummary, setSalesSummary] = useState<SalesSummary>({
     cash: 0,
     transfer: 0,
-    unpaid: 0,
+    outstanding: 0,
     partial: 0,
     total: 0,
     totalSales: 0,

@@ -7,7 +7,12 @@
     "client": "cd frontend && npm run dev",
     "server": "cd backend && npm run start:dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "install": "cd frontend && npm install && cd ../backend && npm install"
+    "install": "cd frontend && npm install && cd ../backend && npm install",
+    "pm2:start": "npx pm2 start ecosystem.config.js",
+    "pm2:stop": "npx pm2 stop ecosystem.config.js || npx pm2 stop meeting-api client",
+    "pm2:restart": "npx pm2 restart ecosystem.config.js",
+    "pm2:delete": "npx pm2 delete ecosystem.config.js",
+    "pm2:logs": "npx pm2 logs"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +26,14 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gidado662003/inventory.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gidado662003/inventory/issues"
+  },
+  "homepage": "https://github.com/gidado662003/inventory#readme"
 }

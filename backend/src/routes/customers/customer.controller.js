@@ -69,8 +69,54 @@ const deleteCustomer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const payOwedGroup = async (req, res) => {
+  try {
+    const { id, groupId } = req.params;
+    const { amount } = req.body;
+
+    const payment = Number(amount);
+    if (isNaN(payment) || payment <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Payment amount must be positive" });
+    }
+
+    const customer = await Customer.findOne({
+      _id: id,
+      "owedGroups._id": groupId,
+    });
+    if (!customer) {
+      return res.status(404).json({ message: "Customer or group not found" });
+    }
+
+    const group = customer.owedGroups.id(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    const newAmountPaid = Math.min(group.amountPaid + payment, group.total);
+    const newOutstanding = Math.max(group.total - newAmountPaid, 0);
+    const outstandingDelta = group.outstanding - newOutstanding;
+
+    group.amountPaid = newAmountPaid;
+    group.outstanding = newOutstanding;
+
+    if (customer.amountOwed && outstandingDelta > 0) {
+      customer.amountOwed = Math.max(customer.amountOwed - outstandingDelta, 0);
+    }
+
+    await customer.save();
+
+    res.status(200).json({ owedGroup: group, amountOwed: customer.amountOwed });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCustomers,
   createCustomer,
   deleteCustomer,
+  payOwedGroup,
 };

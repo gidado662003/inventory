@@ -30,9 +30,13 @@ export const calculateSalesSummary = (
     .filter((row) => row[5]?.value === "Transfer")
     .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
 
-  const unpaid = data
+  const outstanding = data
     .slice(1)
-    .filter((row) => row[5]?.value === "Unpaid")
+    .filter(
+      (row) =>
+        row[5]?.value?.toLowerCase() === "outstanding" ||
+        row[5]?.value === "Unpaid"
+    )
     .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
 
   const partial = data
@@ -40,7 +44,7 @@ export const calculateSalesSummary = (
     .filter((row) => row[5]?.value === "Partial")
     .reduce((acc, row) => acc + parseAmount(row[4]?.value), 0);
 
-  const total = cash + transfer + unpaid + partial;
+  const total = cash + transfer + outstanding + partial;
 
   // Calculate total sales (quantity)
   const header = data[0];
@@ -60,7 +64,7 @@ export const calculateSalesSummary = (
   return {
     cash,
     transfer,
-    unpaid,
+    outstanding,
     partial,
     total,
     totalSales,

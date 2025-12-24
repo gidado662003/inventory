@@ -23,6 +23,8 @@ export default function Users() {
   const router = useRouter();
   const isAdmin = currentUser?.role === "admin";
 
+  console.log(currentUser);
+
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading("global");
@@ -135,19 +137,21 @@ export default function Users() {
                     )}
                   </button>
                 )}
-                <button
-                  onClick={() => handleDelete(user._id)}
-                  disabled={isLoading === user._id || !isAdmin}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-all"
-                >
-                  {isLoading === user._id ? (
-                    <ClipLoader size={16} color="#fff" />
-                  ) : (
-                    <>
-                      <FiTrash2 size={16} /> Delete
-                    </>
-                  )}
-                </button>
+                {user.role === "user" && (
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    disabled={isLoading === user._id || !isAdmin}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-all"
+                  >
+                    {isLoading === user._id ? (
+                      <ClipLoader size={16} color="#fff" />
+                    ) : (
+                      <>
+                        <FiTrash2 size={16} /> Delete
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           ))}

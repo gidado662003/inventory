@@ -13,7 +13,7 @@ async function createSale(req, res) {
 
     // Check if any item has paymentType "Partial" and requires customerName
     const hasPartialPayment = items.some(
-      (item) => item.paymentType === "Outstanding"
+      (item) => item.paymentType === "outstanding"
     );
 
     if (hasPartialPayment) {
@@ -66,13 +66,36 @@ async function createSale(req, res) {
       );
     }
 
-    // 4. Update customer's amountOwed if partial payment
-    if (hasPartialPayment && customerName && typeof amountPaid === "number") {
-      // Calculate how much is owed for this sale
-      const amountOwed = sale.totalAmount - amountPaid;
-      await Customer.findByIdAndUpdate(customerName, {
-        $inc: { amountOwed: amountOwed },
-      });
+    // 4. Update customer's amountOwed and owedGroups if partial payment
+    if (hasPartialPayment && customerName) {
+      const amountPaidForSale = typeof amountPaid === "number" ? amountPaid : 0;
+      const amountOwed = sale.totalAmount - amountPaidForSale;
+
+      const itemsOwed = sale.items
+        .filter((item) => item.paymentType === "outstanding")
+        .map((item) => ({
+          itemName: item.name,
+          quantity: item.quantity,
+          unitPrice: item.salePrice,
+          amountPaid: 0,
+        }));
+
+      await Customer.findByIdAndUpdate(
+        customerName,
+        {
+          $inc: { amountOwed: amountOwed },
+          $push: {
+            itemsOwed: { $each: itemsOwed }, // legacy per-item
+            owedGroups: {
+              items: itemsOwed.map(({ amountPaid, ...rest }) => rest),
+              total: sale.totalAmount,
+              amountPaid: amountPaidForSale,
+              outstanding: amountOwed,
+            },
+          },
+        },
+        { new: true }
+      );
     }
 
     res.status(201).json(sale);

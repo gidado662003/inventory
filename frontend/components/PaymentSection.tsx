@@ -26,7 +26,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
   );
 
   const handlePaymentTypeChange = (type: PaymentType) => {
-    const newType = type === "Partial/Unpaid" ? "Outstanding" : type;
+    const newType = type === "Partial/Unpaid" ? "outstanding" : type;
     setPaymentType(type);
     onUpdatePaymentType(newType);
   };

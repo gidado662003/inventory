@@ -173,6 +173,16 @@ function Report() {
   );
   const totalItems = report.reduce((acc, item) => acc + item.quantity, 0);
 
+  const productQuantitySummary = Object.values(
+    report.reduce((acc, item) => {
+      if (!acc[item.name]) {
+        acc[item.name] = { name: item.name, quantity: 0 };
+      }
+      acc[item.name].quantity += item.quantity;
+      return acc;
+    }, {} as Record<string, { name: string; quantity: number }>)
+  );
+
   return (
     <>
       <TopBar />
@@ -383,6 +393,40 @@ function Report() {
                     </table>
                   </div>
                 </div>
+
+                {productQuantitySummary.length > 0 && (
+                  <div className="border rounded-lg overflow-hidden shadow-sm mt-6">
+                    <div className="overflow-x-auto">
+                      <table className="w-full divide-y divide-gray-200 text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Product
+                            </th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Total Quantity
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {productQuantitySummary.map((item) => (
+                            <tr
+                              key={item.name}
+                              className="hover:bg-gray-50 transition-colors"
+                            >
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                {item.name}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-right">
+                                {item.quantity.toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <div className="py-12 text-center">
