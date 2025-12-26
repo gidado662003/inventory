@@ -24,6 +24,7 @@ export function CustomerForm({
     customerName: initialData.customerName || "",
     phone: initialData.phone || "",
   });
+
   const [errors, setErrors] = useState<Partial<CustomerFormData>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 

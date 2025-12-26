@@ -2,12 +2,23 @@ import React, { useState } from "react";
 import { PaymentType, PAYMENT_OPTIONS } from "@/types/sales";
 import { Customer } from "@/types/customer";
 import { CustomToast } from "./CustomToast";
+import { CustomerForm } from "./CustomerForm";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "./ui/alert-dialog";
+import { createCustomer, getCustomers } from "@/app/api";
 
 interface PaymentSectionProps {
   cart: any[];
   customers: Customer[];
   onUpdatePaymentType: (paymentType: string) => void;
   onSaveSale: (customer: string, amountPaid: number) => void;
+  onUpdateCustomers: (customers: Customer[]) => void;
 }
 
 export const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -15,6 +26,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
   customers,
   onUpdatePaymentType,
   onSaveSale,
+  onUpdateCustomers,
 }) => {
   const [paymentType, setPaymentType] = useState<PaymentType | "">("");
   const [customer, setCustomer] = useState<string>("");
@@ -90,20 +102,38 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     </option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-muted hover:bg-muted/80 rounded-md text-foreground transition-colors"
-                  onClick={() =>
-                    CustomToast({
-                      message: "Feature coming soon!",
-                      description:
-                        "New customer registration will be available in the next update",
-                      type: "info",
-                    })
-                  }
-                >
-                  + New
-                </button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      type="button"
+                      className="px-3 py-2 bg-muted hover:bg-muted/80 rounded-md text-foreground transition-colors"
+                    >
+                      + New
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>New Customer</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Add a new customer to your system
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <CustomerForm
+                      onSubmit={async (data) => {
+                        try {
+                          await createCustomer(data);
+                          const updatedCustomers = await getCustomers();
+                          onUpdateCustomers(updatedCustomers);
+                          // Close the dialog
+                          // Show success message
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      }}
+                      onCancel={() => {}}
+                    />
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
 

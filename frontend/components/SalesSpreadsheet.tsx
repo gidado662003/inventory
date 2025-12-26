@@ -15,6 +15,7 @@ const SalesSpreadsheet = () => {
     setData,
     cart,
     customers,
+    setCustomers,
     salesSummary,
     addToCart,
     removeFromCart,
@@ -172,6 +173,7 @@ const SalesSpreadsheet = () => {
                     customers={customers}
                     onUpdatePaymentType={updateCartPaymentType}
                     onSaveSale={createNewSale}
+                    onUpdateCustomers={setCustomers}
                   />
                 </div>
               </div>

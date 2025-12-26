@@ -259,6 +259,7 @@ export const useSales = () => {
     setData,
     cart,
     customers,
+    setCustomers,
     salesSummary,
 
     // Actions
